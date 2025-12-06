@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}My Datasets - SecureHealth{% endblock %}
+
+{% block content %}
+<section class="py-12">
+    <div class="container">
+        <div class="flex justify-between items-center mb-8">
+            <h1>My Datasets</h1>
+            <a href="/upload" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Upload
+            </a>
+        </div>
+
+        <!-- Search/Filter -->
+        <div class="card mb-8 p-4">
+            <div class="flex gap-4">
+                <div class="input-group w-full m-0">
+                    <input type="text" id="search" class="input" placeholder="Search datasets...">
+                </div>
+                <select class="input w-auto" id="sort">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="name">Name A-Z</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Dataset Grid -->
+        <div id="datasetGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Loaded via JS -->
+            <div class="col-span-full text-center py-12">
+                <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                <p class="mt-4 text-muted">Loading datasets...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="card max-w-md w-full mx-4 animate-slide-up">
+        <h3 class="text-xl mb-4">Delete Dataset?</h3>
+        <p class="text-muted mb-6">Are you sure you want to delete <strong id="deleteName" class="text-main"></strong>?
+            This action cannot be undone.</p>
+        <div class="flex justify-end gap-4">
+            <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+            <button class="btn btn-primary bg-red-600 hover:bg-red-700 border-red-600"
+                id="confirmDelete">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Rename Modal -->
+<div id="renameModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="card max-w-md w-full mx-4 animate-slide-up">
+        <h3 class="text-xl mb-4">Rename Dataset</h3>
+        <div class="input-group">
+            <label class="label">New Name</label>
+            <input type="text" id="newNameInput" class="input">
+        </div>
+        <div class="flex justify-end gap-4">
+            <button class="btn btn-secondary" onclick="closeRenameModal()">Cancel</button>
+            <button class="btn btn-primary" id="confirmRename">Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let datasets = [];
+    let datasetToDelete = null;
+    let datasetToRename = null;
+
+    async function loadDatasets() {
+        try {
+            const res = await fetch('/datasets/list');
+            const data = await res.json();
+            datasets = data.datasets;
+            renderDatasets();
+        } catch (e) {
+            document.getElementById('datasetGrid').innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <p class="text-red-400">Error loading datasets. Please try again.</p>
+        </div>`;
+        }
+    }
+
+    function renderDatasets() {
+        const grid = document.getElementById('datasetGrid');
+        const search = document.getElementById('search').value.toLowerCase();
+        const sort = document.getElementById('sort').value;
+
+        let filtered = datasets.filter(d => d.name.toLowerCase().includes(search) || d.id.includes(search));
+
+        if (sort === 'newest') filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        if (sort === 'oldest') filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `
+        <div class="col-span-full text-center py-12 card bg-surface-2 border-dashed border-slate-700">
+          <i class="fas fa-database fa-3x mb-4 text-muted"></i>
+          <h3>No Datasets Found</h3>
+          <p class="text-muted mb-6">Upload your first CSV to get started.</p>
+          <a href="/upload" class="btn btn-primary">Upload CSV</a>
+        </div>`;
+            return;
+        }
+
+        grid.innerHTML = filtered.map(d => `
+      <div class="card hover:border-primary-500 transition-colors group relative">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-10 h-10 rounded-full bg-primary-900/50 flex items-center justify-center text-primary">
+            <i class="fas fa-file-csv"></i>
+          </div>
+          <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="openRenameModal('${d.id}', '${d.name}')" class="p-2 hover:text-primary-400" title="Rename">
+                <i class="fas fa-pen"></i>
+            </button>
+            <button onclick="openDeleteModal('${d.id}', '${d.name}')" class="p-2 hover:text-red-400" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <h3 class="text-lg font-semibold mb-1 truncate" title="${d.name}">${d.name}</h3>
+        <div class="text-xs text-muted font-mono mb-4 truncate">${d.id}</div>
+        
+        <div class="grid grid-cols-2 gap-2 text-sm text-muted mb-6">
+          <div><i class="far fa-calendar mr-1"></i> ${new Date(d.created_at).toLocaleDateString()}</div>
+          <div><i class="fas fa-list-ol mr-1"></i> ${d.record_count} Records</div>
+          <div><i class="fas fa-hdd mr-1"></i> ${(d.size_bytes / 1024).toFixed(1)} KB</div>
+          <div class="text-success"><i class="fas fa-lock mr-1"></i> Encrypted</div>
+        </div>
+        
+        <div class="flex gap-2 mt-auto">
+          <a href="/encrypt/dataset/${d.id}/preview" class="btn btn-secondary btn-sm flex-1">
+            <i class="fas fa-eye"></i> Preview
+          </a>
+          <a href="/ui/analytics?dataset=${d.id}" class="btn btn-primary btn-sm flex-1">
+            <i class="fas fa-chart-pie"></i> Analyze
+          </a>
+        </div>
+      </div>
+    `).join('');
+    }
+
+    // Search & Sort Listeners
+    document.getElementById('search').addEventListener('input', renderDatasets);
+    document.getElementById('sort').addEventListener('change', renderDatasets);
+
+    // Delete Modal
+    function openDeleteModal(id, name) {
+        datasetToDelete = id;
+        document.getElementById('deleteName').textContent = name;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        datasetToDelete = null;
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+
+    document.getElementById('confirmDelete').addEventListener('click', async () => {
+        if (!datasetToDelete) return;
+
+        const btn = document.getElementById('confirmDelete');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`/datasets/${datasetToDelete}`, { method: 'DELETE' });
+            if (res.ok) {
+                datasets = datasets.filter(d => d.id !== datasetToDelete);
+                renderDatasets();
+                closeDeleteModal();
+            } else {
+                alert('Failed to delete dataset');
+            }
+        } catch (e) {
+            alert('Error deleting dataset');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    });
+
+    // Rename Modal
+    function openRenameModal(id, name) {
+        datasetToRename = id;
+        document.getElementById('newNameInput').value = name;
+        document.getElementById('renameModal').classList.remove('hidden');
+    }
+
+    function closeRenameModal() {
+        datasetToRename = null;
+        document.getElementById('renameModal').classList.add('hidden');
+    }
+
+    document.getElementById('confirmRename').addEventListener('click', async () => {
+        if (!datasetToRename) return;
+
+        const newName = document.getElementById('newNameInput').value;
+        if (!newName) return;
+
+        const btn = document.getElementById('confirmRename');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`/datasets/${datasetToRename}/rename`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newName })
+            });
+
+            if (res.ok) {
+                const ds = datasets.find(d => d.id === datasetToRename);
+                if (ds) ds.name = newName;
+                renderDatasets();
+                closeRenameModal();
+            }
+        } catch (e) {
+            alert('Error renaming dataset');
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    // Initial Load
+    loadDatasets();
+</script>
+{% endblock %}

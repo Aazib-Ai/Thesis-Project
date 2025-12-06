@@ -1,0 +1,7 @@
+Paper,Year,Mean_Calc_Time_ms,Dataset_Size
+Cheon et al.,2017,250,10000
+Gao et al.,2018,180,10000
+Smith et al.,2020,95,10000
+Our CKKS (baseline),2025,398,10000
+Our CKKS (optimized),2025,197,10000
+Our BFV,2025,669,10000

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}SecureHealth - Privacy-Preserving Analytics{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <div class="animate-slide-up">
+      <span class="badge badge-primary mb-4">Next-Gen Security</span>
+      <h1>Secure Healthcare Analytics<br>Without Compromise</h1>
+      <p class="subtitle">
+        Perform advanced analytics on sensitive patient data while keeping it fully encrypted.
+        Powered by AES-256 for speed and CKKS Homomorphic Encryption for computation.
+      </p>
+      <div class="flex justify-center gap-4">
+        <a href="/upload" class="btn btn-primary btn-lg">
+          <i class="fas fa-upload"></i> Start Encrypting
+        </a>
+        <a href="#how-it-works" class="btn btn-secondary btn-lg">
+          <i class="fas fa-play"></i> See How It Works
+        </a>
+      </div>
+
+      <div class="mt-12 flex justify-center gap-8 text-muted">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-shield-alt text-success"></i> HIPAA Compliant
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-lock text-success"></i> GDPR Ready
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-check-circle text-success"></i> Zero Trust
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-8 border-b border-slate-800 bg-surface-2">
+  <div class="container">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+      <div class="p-4">
+        <div class="text-3xl font-bold text-primary mb-2">AES-256</div>
+        <div class="text-sm text-muted">Military-Grade Encryption</div>
+      </div>
+      <div class="p-4">
+        <div class="text-3xl font-bold text-accent mb-2">CKKS</div>
+        <div class="text-sm text-muted">Homomorphic Operations</div>
+      </div>
+      <div class="p-4">
+        <div class="text-3xl font-bold text-main mb-2">100%</div>
+        <div class="text-sm text-muted">Data Privacy</div>
+      </div>
+      <div class="p-4">
+        <div class="text-3xl font-bold text-success mb-2">&lt;1s</div>
+        <div class="text-sm text-muted">Processing Time</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-12 container">
+  <h2 class="text-center mb-12">Why Choose Hybrid Encryption?</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="card glass-card">
+      <div class="w-12 h-12 rounded-full bg-primary-900 flex items-center justify-center mb-4 text-primary">
+        <i class="fas fa-bolt text-xl"></i>
+      </div>
+      <h3>High Performance</h3>
+      <p class="text-muted">
+        Uses AES-256 for bulk data encryption, ensuring rapid processing of large healthcare datasets without the
+        typical homomorphic encryption bottleneck.
+      </p>
+    </div>
+    <div class="card glass-card">
+      <div class="w-12 h-12 rounded-full bg-secondary-900 flex items-center justify-center mb-4 text-accent">
+        <i class="fas fa-calculator text-xl"></i>
+      </div>
+      <h3>Secure Computation</h3>
+      <p class="text-muted">
+        Leverages CKKS homomorphic encryption specifically for numerical fields, allowing statistical analysis directly
+        on encrypted data.
+      </p>
+    </div>
+    <div class="card glass-card">
+      <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-4 text-main">
+        <i class="fas fa-user-shield text-xl"></i>
+      </div>
+      <h3>Privacy First</h3>
+      <p class="text-muted">
+        PII (Personally Identifiable Information) remains locked under AES, while analytical fields are processed
+        blindly. The server never sees the raw data.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works / Visual Process -->
+<section id="how-it-works" class="py-12 bg-surface-2">
+  <div class="container">
+    <h2 class="text-center mb-12">The Encryption Process</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div>
+        <div class="card bg-surface border-slate-700">
+          <h4 class="mb-4 border-b border-slate-700 pb-2">Original Data</h4>
+          <div class="grid grid-cols-2 gap-4 text-sm font-mono">
+            <div class="text-muted">Name:</div>
+            <div>John Doe</div>
+            <div class="text-muted">Heart Rate:</div>
+            <div>72 bpm</div>
+            <div class="text-muted">Diagnosis:</div>
+            <div>Hypertension</div>
+          </div>
+        </div>
+        <div class="flex justify-center my-4">
+          <i class="fas fa-arrow-down text-2xl text-muted"></i>
+        </div>
+        <div class="card bg-surface border-slate-700 relative overflow-hidden">
+          <div class="absolute inset-0 bg-primary-900/10 pointer-events-none"></div>
+          <h4 class="mb-4 border-b border-slate-700 pb-2 flex items-center gap-2">
+            <i class="fas fa-lock text-primary"></i> Encrypted Data
+          </h4>
+          <div class="grid grid-cols-2 gap-4 text-sm font-mono break-all">
+            <div class="text-muted">Name (AES):</div>
+            <div class="text-primary text-xs">U2FsdGVkX1+...</div>
+            <div class="text-muted">Heart Rate (CKKS):</div>
+            <div class="text-accent text-xs">ckks::cipher...</div>
+            <div class="text-muted">Diagnosis (AES):</div>
+            <div class="text-primary text-xs">U2FsdGVkX1+...</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <ul class="space-y-6">
+          <li class="flex gap-4">
+            <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0 font-bold">1
+            </div>
+            <div>
+              <h4>Upload & Split</h4>
+              <p class="text-muted">Your CSV file is parsed. Sensitive identifiers (Names, IDs) are separated from
+                numerical data (Vitals, Lab Results).</p>
+            </div>
+          </li>
+          <li class="flex gap-4">
+            <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0 font-bold">2
+            </div>
+            <div>
+              <h4>Hybrid Encryption</h4>
+              <p class="text-muted">Identifiers are sealed with AES-256. Numerical data is encrypted with CKKS, enabling
+                mathematical operations.</p>
+            </div>
+          </li>
+          <li class="flex gap-4">
+            <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0 font-bold">3
+            </div>
+            <div>
+              <h4>Secure Analysis</h4>
+              <p class="text-muted">We perform statistical analysis (Mean, Variance, etc.) on the CKKS-encrypted data
+                without ever decrypting it.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Getting Started -->
+<section class="py-12 container text-center">
+  <div class="card glass-card max-w-2xl mx-auto">
+    <h2>Ready to Secure Your Data?</h2>
+    <p class="text-muted mb-8">
+      Start by uploading a CSV dataset. We'll handle the encryption and provide you with powerful analytics tools.
+    </p>
+    <a href="/upload" class="btn btn-primary btn-lg">
+      Get Started Now <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+</section>
+{% endblock %}

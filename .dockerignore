@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+*.egg-info/
+dist/
+build/
+
+# Local data (will use Cloud Storage in production)
+data/encrypted/*
+data/keys/*
+
+# Other
+.trae/
+.yoyo/
+tests/

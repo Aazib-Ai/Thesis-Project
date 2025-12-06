@@ -1,0 +1,67 @@
+/* Main Stylesheet */
+@import 'css/variables.css';
+@import 'css/utilities.css';
+@import 'css/components.css';
+
+/* Project Specific Styles */
+
+/* Hero Section */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  background: radial-gradient(1200px 600px at 50% -20%, var(--bg-surface-2) 0%, var(--bg-body) 60%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(43, 127, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.container {
+  max-width: 1000px;
+  padding: 0 var(--space-6);
+  margin: 0 auto;
+}
+
+/* Typography Overrides for Hero */
+.hero h1 {
+  font-size: 3.5rem;
+  margin-bottom: var(--space-4);
+  background: linear-gradient(135deg, var(--text-main) 0%, var(--primary-300) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.03em;
+}
+
+.hero .subtitle {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-8);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .nav-container {
+    padding: 0 var(--space-4);
+  }
+}

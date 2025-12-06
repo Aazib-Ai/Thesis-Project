@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  web:
+    build: .
+    image: thesis-fhe:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret}
+      - FLASK_APP=src.api.app
+      - FLASK_RUN_HOST=0.0.0.0
+    volumes:
+      - ./data:/app/data
+      - ./benchmarks:/app/benchmarks
+    restart: unless-stopped
+

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Register - SecureHealth{% endblock %}
+
+{% block content %}
+<section class="min-h-80vh flex items-center justify-center py-12">
+    <div class="card max-w-md w-full animate-slide-up">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold">Create Account</h1>
+            <p class="text-muted">Join SecureHealth for privacy-preserving analytics</p>
+        </div>
+
+        <form id="registerForm" class="space-y-6">
+            <div class="input-group">
+                <label class="label">Username</label>
+                <div class="relative">
+                    <i class="fas fa-user absolute left-3 top-3 text-muted"></i>
+                    <input type="text" name="username" class="input pl-10" placeholder="Choose a username" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="label">Password</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-3 top-3 text-muted"></i>
+                    <input type="password" name="password" id="password" class="input pl-10"
+                        placeholder="Choose a strong password" required>
+                </div>
+                <div class="mt-2 h-1 w-full bg-slate-800 rounded overflow-hidden">
+                    <div id="strengthBar" class="h-full bg-red-500 w-0 transition-all duration-300"></div>
+                </div>
+                <div class="text-xs text-muted mt-1 text-right" id="strengthText">Weak</div>
+            </div>
+
+            <div class="input-group">
+                <label class="label">Confirm Password</label>
+                <div class="relative">
+                    <i class="fas fa-check absolute left-3 top-3 text-muted"></i>
+                    <input type="password" name="confirm_password" class="input pl-10"
+                        placeholder="Confirm your password" required>
+                </div>
+            </div>
+
+            <div id="errorMsg" class="hidden text-error text-sm text-center"></div>
+
+            <button type="submit" class="btn btn-primary w-full py-3">
+                Create Account <i class="fas fa-user-plus ml-2"></i>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-muted">
+            Already have an account? <a href="/login" class="text-primary hover:underline">Sign In</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Password Strength
+    document.getElementById('password').addEventListener('input', (e) => {
+        const val = e.target.value;
+        const bar = document.getElementById('strengthBar');
+        const txt = document.getElementById('strengthText');
+        let strength = 0;
+
+        if (val.length > 5) strength += 20;
+        if (val.length > 8) strength += 20;
+        if (/[A-Z]/.test(val)) strength += 20;
+        if (/[0-9]/.test(val)) strength += 20;
+        if (/[^A-Za-z0-9]/.test(val)) strength += 20;
+
+        bar.style.width = `${strength}%`;
+
+        if (strength < 40) { bar.className = 'h-full bg-red-500 w-0 transition-all'; txt.textContent = 'Weak'; txt.className = 'text-xs mt-1 text-right text-red-500'; }
+        else if (strength < 80) { bar.className = 'h-full bg-yellow-500 w-0 transition-all'; txt.textContent = 'Medium'; txt.className = 'text-xs mt-1 text-right text-yellow-500'; }
+        else { bar.className = 'h-full bg-success w-0 transition-all'; txt.textContent = 'Strong'; txt.className = 'text-xs mt-1 text-right text-success'; }
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const err = document.getElementById('errorMsg');
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        if (data.password !== data.confirm_password) {
+            err.textContent = "Passwords do not match";
+            err.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+        err.classList.add('hidden');
+
+        try {
+            const res = await fetch('/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: data.username, password: data.password })
+            });
+
+            const json = await res.json();
+
+            if (!res.ok) throw new Error(json.error || 'Registration failed');
+
+            alert('Account created successfully! Please sign in.');
+            window.location.href = '/login';
+
+        } catch (e) {
+            err.textContent = e.message;
+            err.classList.remove('hidden');
+            btn.disabled = false;
+            btn.innerHTML = 'Create Account <i class="fas fa-user-plus ml-2"></i>';
+        }
+    });
+</script>
+{% endblock %}

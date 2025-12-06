@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}How It Works - SecureHealth{% endblock %}
+
+{% block content %}
+<section class="py-12">
+    <div class="container">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h1 class="mb-4">Understanding Hybrid Encryption</h1>
+            <p class="text-xl text-muted">
+                SecureHealth combines the speed of AES-256 with the computational power of CKKS Homomorphic Encryption.
+            </p>
+        </div>
+
+        <!-- Interactive Demo -->
+        <div class="card mb-16">
+            <h2 class="text-center mb-8">Interactive Encryption Demo</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                <!-- Input -->
+                <div class="space-y-4">
+                    <label class="label">Enter a Number</label>
+                    <input type="number" id="demoInput" class="input text-center text-xl" value="42">
+                    <div class="text-center text-sm text-muted">Plaintext Data</div>
+                </div>
+
+                <!-- Process -->
+                <div class="text-center space-y-4">
+                    <div class="relative h-20 flex items-center justify-center">
+                        <div id="arrowAnim" class="absolute w-full h-1 bg-slate-700 overflow-hidden rounded">
+                            <div class="h-full bg-primary-500 w-1/3 animate-slide-right"></div>
+                        </div>
+                        <div class="relative z-10 bg-surface-2 p-3 rounded-full border border-slate-600">
+                            <i class="fas fa-lock text-2xl text-primary"></i>
+                        </div>
+                    </div>
+                    <button id="demoEncryptBtn" class="btn btn-primary btn-sm">Encrypt &rarr;</button>
+                </div>
+
+                <!-- Output -->
+                <div class="space-y-4">
+                    <label class="label">Encrypted Result</label>
+                    <div id="demoOutput"
+                        class="p-4 bg-surface-2 rounded border border-slate-700 font-mono text-xs break-all h-32 overflow-y-auto text-muted">
+                        Waiting for input...
+                    </div>
+                    <div class="text-center text-sm text-muted">Ciphertext (Unreadable)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Diagram -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+            <div>
+                <h2 class="mb-6">The Hybrid Approach</h2>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div
+                            class="w-12 h-12 rounded bg-primary-900/20 flex items-center justify-center text-primary shrink-0 text-xl font-bold">
+                            1</div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-2">AES-256 for Storage</h3>
+                            <p class="text-muted">
+                                Sensitive PII (Personally Identifiable Information) like names and IDs are encrypted
+                                using AES-256. This is fast and secure but doesn't allow computation.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div
+                            class="w-12 h-12 rounded bg-accent-900/20 flex items-center justify-center text-accent shrink-0 text-xl font-bold">
+                            2</div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-2">CKKS for Analytics</h3>
+                            <p class="text-muted">
+                                Numerical data (heart rate, blood pressure) is encrypted using the CKKS scheme. This
+                                allows the server to perform math (mean, sum, variance) directly on the encrypted data.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div
+                            class="w-12 h-12 rounded bg-success-900/20 flex items-center justify-center text-success shrink-0 text-xl font-bold">
+                            3</div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-2">Secure Computation</h3>
+                            <p class="text-muted">
+                                The cloud server processes your request and returns an encrypted result. Only you, with
+                                the secret key, can decrypt the final answer.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface-2 rounded-xl p-8 flex items-center justify-center border border-slate-700">
+                <!-- Simple SVG Diagram -->
+                <svg viewBox="0 0 400 300" class="w-full h-auto">
+                    <!-- Client -->
+                    <rect x="20" y="100" width="80" height="100" rx="8" fill="#1e293b" stroke="#3b82f6"
+                        stroke-width="2" />
+                    <text x="60" y="155" text-anchor="middle" fill="#94a3b8" font-size="14">Client</text>
+
+                    <!-- Cloud -->
+                    <path
+                        d="M280 100 Q250 100 250 130 Q220 130 220 160 Q220 190 250 190 L350 190 Q380 190 380 160 Q380 130 350 130 Q350 100 320 100 Z"
+                        fill="#1e293b" stroke="#10b981" stroke-width="2" />
+                    <text x="300" y="155" text-anchor="middle" fill="#94a3b8" font-size="14">Cloud Server</text>
+
+                    <!-- Arrows -->
+                    <line x1="110" y1="130" x2="210" y2="130" stroke="#64748b" stroke-width="2"
+                        stroke-dasharray="5,5" />
+                    <polygon points="210,130 200,125 200,135" fill="#64748b" />
+                    <text x="160" y="120" text-anchor="middle" fill="#64748b" font-size="10">Encrypted Data</text>
+
+                    <line x1="210" y1="170" x2="110" y2="170" stroke="#64748b" stroke-width="2"
+                        stroke-dasharray="5,5" />
+                    <polygon points="110,170 120,165 120,175" fill="#64748b" />
+                    <text x="160" y="185" text-anchor="middle" fill="#64748b" font-size="10">Encrypted Result</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-center mb-8">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <details class="group card p-0 overflow-hidden">
+                    <summary
+                        class="flex justify-between items-center p-6 cursor-pointer bg-surface hover:bg-surface-2 transition-colors">
+                        <span class="font-bold">Is my data ever decrypted on the server?</span>
+                        <i class="fas fa-chevron-down transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <div class="p-6 pt-0 text-muted border-t border-slate-800">
+                        No. With Homomorphic Encryption, the server performs calculations directly on the ciphertext. It
+                        never sees the raw data or the encryption keys.
+                    </div>
+                </details>
+
+                <details class="group card p-0 overflow-hidden">
+                    <summary
+                        class="flex justify-between items-center p-6 cursor-pointer bg-surface hover:bg-surface-2 transition-colors">
+                        <span class="font-bold">How much slower is it compared to normal processing?</span>
+                        <i class="fas fa-chevron-down transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <div class="p-6 pt-0 text-muted border-t border-slate-800">
+                        Our optimized hybrid model is significantly faster than traditional FHE. While slower than
+                        plaintext processing, it is efficient enough for real-time analytics on medium-sized datasets,
+                        taking less than a second for typical operations.
+                    </div>
+                </details>
+
+                <details class="group card p-0 overflow-hidden">
+                    <summary
+                        class="flex justify-between items-center p-6 cursor-pointer bg-surface hover:bg-surface-2 transition-colors">
+                        <span class="font-bold">What kind of analytics can I perform?</span>
+                        <i class="fas fa-chevron-down transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <div class="p-6 pt-0 text-muted border-t border-slate-800">
+                        Currently, we support basic statistical operations like Mean, Sum, Variance, and Standard
+                        Deviation. We are working on adding support for more complex operations like correlation and
+                        regression.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('demoEncryptBtn').addEventListener('click', () => {
+        const input = document.getElementById('demoInput').value;
+        const output = document.getElementById('demoOutput');
+
+        output.innerHTML = '<span class="animate-pulse">Encrypting...</span>';
+
+        // Simulate encryption visually
+        setTimeout(() => {
+            // Generate random hex string to simulate ciphertext
+            let hex = '';
+            const chars = '0123456789abcdef';
+            for (let i = 0; i < 300; i++) {
+                hex += chars[Math.floor(Math.random() * 16)];
+            }
+            output.textContent = hex;
+            output.classList.add('text-accent');
+            output.classList.remove('text-muted');
+        }, 800);
+    });
+</script>
+{% endblock %}

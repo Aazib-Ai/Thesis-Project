@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Decrypted Preview - SecureHealth{% endblock %}
+
+{% block head %}
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border: 1px solid var(--slate-700);
+    padding: 12px;
+    text-align: left;
+  }
+
+  th {
+    background: var(--bg-surface-2);
+    color: var(--text-main);
+    font-weight: 600;
+  }
+
+  td {
+    color: var(--text-muted);
+  }
+
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .badge-aes {
+    background: rgba(43, 127, 255, 0.1);
+    color: var(--primary-400);
+    border: 1px solid rgba(43, 127, 255, 0.2);
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .badge-ckks {
+    background: rgba(34, 211, 238, 0.1);
+    color: var(--secondary-400);
+    border: 1px solid rgba(34, 211, 238, 0.2);
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .cell-content {
+    position: relative;
+  }
+
+  .original-val {
+    display: none;
+    position: absolute;
+    top: -20px;
+    left: 0;
+    background: var(--slate-800);
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    z-index: 10;
+    white-space: nowrap;
+  }
+
+  .cell-content:hover .original-val {
+    display: block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-12">
+  <div class="container">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1>Decrypted Preview</h1>
+        <div class="badge badge-primary font-mono">{{ dataset_id }}</div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="exportTable('csv')" class="btn btn-secondary btn-sm"><i class="fas fa-file-csv"></i>
+          CSV</button>
+        <button onclick="exportTable('json')" class="btn btn-secondary btn-sm"><i class="fas fa-file-code"></i>
+          JSON</button>
+      </div>
+    </div>
+
+    <div class="card mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <div class="input-group m-0 w-64">
+          <input type="text" id="tableSearch" class="input" placeholder="Search decrypted values...">
+        </div>
+        <div class="text-sm text-muted">
+          Showing <span id="rowCount">{{ rows|length }}</span> records
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[600px]">
+        {% if rows and rows|length > 0 %}
+        <table id="previewTable">
+          <thead class="sticky top-0 z-10">
+            {% set cols = rows[0].keys() %}
+            <tr>
+              {% for c in cols %}
+              <th>{{ c }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows %}
+            <tr>
+              {% for c in cols %}
+              {% set val = r.get(c, '') %}
+              <td>
+                <div class="cell-content">
+                  {% if val == '[Decryption Failed]' %}
+                  <span class="text-error"><i class="fas fa-exclamation-circle"></i> Failed</span>
+                  {% elif val == '[CKKS Error]' %}
+                  <span class="text-error"><i class="fas fa-exclamation-triangle"></i> Error</span>
+                  {% else %}
+                  {{ val }}
+                  {% endif %}
+                </div>
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-8 text-muted">
+          <i class="fas fa-inbox fa-3x mb-4 opacity-50"></i>
+          <p>No rows found or dataset is empty.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-6 text-center">
+      <a href="/upload" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Upload
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Simple Client-Side Search
+  document.getElementById('tableSearch').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#previewTable tbody tr');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      if (text.includes(term)) {
+        row.style.display = '';
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    document.getElementById('rowCount').textContent = visibleCount;
+  });
+
+  // Simple Export
+  function exportTable(format) {
+    const table = document.getElementById('previewTable');
+    if (!table) return;
+
+    if (format === 'csv') {
+      let csv = [];
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => {
+        if (row.style.display !== 'none') {
+          const cols = row.querySelectorAll('td, th');
+          const rowData = [];
+          cols.forEach(col => rowData.push('"' + col.innerText.replace(/"/g, '""') + '"'));
+          csv.push(rowData.join(','));
+        }
+      });
+      downloadFile(csv.join('\n'), 'export.csv', 'text/csv');
+    } else {
+      // JSON export logic could be added here, but CSV is sufficient for preview
+      alert('JSON export from preview is not fully implemented. Use the Decryption Dashboard for full export.');
+    }
+  }
+
+  function downloadFile(content, fileName, mimeType) {
+    const a = document.createElement('a');
+    const blob = new Blob([content], { type: mimeType });
+    a.href = URL.createObjectURL(blob);
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+</script>
+{% endblock %}

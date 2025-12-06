@@ -1,0 +1,27 @@
+# ===== Core Cryptography =====
+tenseal==0.3.16
+pycryptodome==3.19.0
+
+# ===== Data Processing =====
+numpy==2.4.0rc1
+pandas==2.3.3
+
+# ===== Web Framework =====
+flask==3.0.0
+flask-cors==4.0.0
+flask-jwt-extended==4.5.3
+
+# ===== Visualization =====
+matplotlib==3.10.7
+seaborn==0.13.2
+
+# ===== Testing =====
+pytest==7.4.0
+pytest-cov==4.1.0
+
+# ===== Production Server =====
+gunicorn==21.2.0
+
+# ===== Google Cloud (for cloud deployment) =====
+google-cloud-storage==2.14.0
+google-cloud-secret-manager==2.18.0

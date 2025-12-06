@@ -1,0 +1,947 @@
+{% extends "base.html" %}
+
+{% block title %}Benchmark Results - SecureHealth{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  .benchmark-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--primary-400), var(--secondary-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  /* Info Card */
+  .info-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-800);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-card-content {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(43, 127, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-400);
+    flex-shrink: 0;
+  }
+
+  .info-text h4 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .info-text p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .code-block {
+    background: var(--bg-surface-2);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 0.8125rem;
+    border: 1px solid var(--slate-700);
+    margin-bottom: 0.75rem;
+  }
+
+  .code-block .file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+  }
+
+  .code-block .file-item i.baseline {
+    color: var(--primary-400);
+  }
+
+  .code-block .file-item i.optimized {
+    color: var(--success);
+  }
+
+  .command-block {
+    background: var(--slate-900);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: var(--accent);
+    border: 1px solid var(--slate-700);
+  }
+
+  /* Charts Grid */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 1024px) {
+    .charts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Chart Card */
+  .chart-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-800);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    min-height: 450px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .chart-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .chart-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .chart-btn {
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius);
+    background: var(--bg-surface-2);
+    border: 1px solid var(--slate-700);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-muted);
+  }
+
+  .chart-btn:hover {
+    background: var(--slate-700);
+    color: var(--text-main);
+  }
+
+  .chart-btn.active {
+    background: var(--primary-900);
+    border-color: var(--primary-600);
+    color: var(--primary-300);
+  }
+
+  .chart-container {
+    flex: 1;
+    min-height: 300px;
+    position: relative;
+  }
+
+  .chart-footer {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--slate-800);
+  }
+
+  /* Scale Toggle */
+  .scale-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    background: var(--bg-surface-2);
+    border-radius: var(--radius);
+    border: 1px solid var(--slate-700);
+  }
+
+  .scale-toggle label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0 0.5rem;
+  }
+
+  .scale-btn {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .scale-btn.active {
+    background: var(--primary-600);
+    color: white;
+  }
+
+  /* Individual Chart Insights */
+  .chart-insight {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1rem;
+  }
+
+  .insight-item {
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--bg-surface-2);
+    border-radius: var(--radius);
+    border: 1px solid var(--slate-700);
+  }
+
+  .insight-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+  }
+
+  .insight-value.baseline {
+    color: var(--primary-400);
+  }
+
+  .insight-value.optimized {
+    color: var(--success);
+  }
+
+  .insight-value.speedup {
+    color: var(--warning);
+  }
+
+  .insight-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* Table Card */
+  .table-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-800);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+  }
+
+  .table-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .data-table thead {
+    background: var(--bg-surface-2);
+  }
+
+  .data-table th {
+    padding: 0.75rem 1rem;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    text-align: left;
+    border-bottom: 1px solid var(--slate-700);
+  }
+
+  .data-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--slate-800);
+  }
+
+  .data-table tr:hover {
+    background: var(--bg-surface-2);
+  }
+
+  .data-table .mono {
+    font-family: monospace;
+  }
+
+  .data-table .baseline-val {
+    color: var(--text-muted);
+  }
+
+  .data-table .optimized-val {
+    color: var(--success);
+  }
+
+  .data-table .speedup-val {
+    color: var(--warning);
+    font-weight: 600;
+  }
+
+  /* Key Findings */
+  .findings-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .findings-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .finding-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-800);
+    border-radius: var(--radius-xl);
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .finding-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    font-size: 1.25rem;
+  }
+
+  .finding-icon.green {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--success);
+  }
+
+  .finding-icon.blue {
+    background: rgba(43, 127, 255, 0.2);
+    color: var(--primary-400);
+  }
+
+  .finding-icon.yellow {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--warning);
+  }
+
+  .finding-icon.purple {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+  }
+
+  .finding-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    font-family: var(--font-display);
+  }
+
+  .finding-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-8">
+  <div class="benchmark-container">
+    <!-- Header -->
+    <div class="page-header">
+      <h1 class="page-title">Performance Benchmarks</h1>
+      <div class="action-buttons">
+        <a href="/comparison" class="btn btn-secondary">
+          <i class="fas fa-balance-scale"></i> Literature Comparison
+        </a>
+        <button onclick="downloadCSV()" class="btn btn-primary">
+          <i class="fas fa-download"></i> Export Data
+        </button>
+      </div>
+    </div>
+
+    <!-- Key Findings Summary -->
+    <div class="findings-grid" id="findingsGrid">
+      <div class="finding-card">
+        <div class="finding-icon green"><i class="fas fa-rocket"></i></div>
+        <div class="finding-value" id="avgSpeedup">--x</div>
+        <div class="finding-label">Average Speedup</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-icon yellow"><i class="fas fa-bolt"></i></div>
+        <div class="finding-value" id="maxSpeedup">--x</div>
+        <div class="finding-label">Max Speedup (100K)</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-icon blue"><i class="fas fa-clock"></i></div>
+        <div class="finding-value" id="fastestOp">--s</div>
+        <div class="finding-label">Fastest Operation</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-icon purple"><i class="fas fa-database"></i></div>
+        <div class="finding-value" id="maxRecords">--</div>
+        <div class="finding-label">Max Records Tested</div>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="info-card">
+      <div class="info-card-content">
+        <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+        <div class="info-text">
+          <h4>About This Benchmark Data</h4>
+          <p>
+            These benchmarks compare the <span style="color: var(--primary-400);">Baseline CKKS</span> implementation
+            against our <span style="color: var(--success);">Optimized AES-CKKS Hybrid</span> implementation.
+            Use the <strong>Log Scale</strong> toggle to visualize data with large differences across orders of
+            magnitude.
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0;">
+            <div class="code-block" style="margin: 0;">
+              <div
+                style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.5rem;">
+                Data Source</div>
+              <div class="file-item"><i class="fas fa-database" style="color: var(--accent);"></i>
+                data/synthetic/patients_1k.csv</div>
+              <div class="file-item"><i class="fas fa-database" style="color: var(--accent);"></i>
+                data/synthetic/patients_10k.csv</div>
+              <div class="file-item"><i class="fas fa-database" style="color: var(--accent);"></i>
+                data/synthetic/patients_100k.csv</div>
+            </div>
+            <div class="code-block" style="margin: 0;">
+              <div
+                style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.5rem;">
+                Results Output</div>
+              <div class="file-item"><i class="fas fa-file-csv baseline"></i> benchmarks/ckks_baseline_results.csv</div>
+              <div class="file-item"><i class="fas fa-file-csv optimized"></i> benchmarks/ckks_optimized_results.csv
+              </div>
+            </div>
+          </div>
+
+          <p><i class="fas fa-sync-alt" style="color: var(--accent);"></i> <strong>To regenerate benchmarks</strong>
+            with fresh data, run:</p>
+          <div class="command-block">python benchmarks/run_all_benchmarks.py</div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem;">
+            <div
+              style="background: var(--bg-surface-2); padding: 0.75rem; border-radius: var(--radius); border: 1px solid var(--slate-700); text-align: center;">
+              <i class="fas fa-memory" style="color: var(--warning); font-size: 1.25rem;"></i>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">8GB+ RAM</div>
+              <div style="font-size: 0.6875rem; color: var(--text-muted);">Recommended</div>
+            </div>
+            <div
+              style="background: var(--bg-surface-2); padding: 0.75rem; border-radius: var(--radius); border: 1px solid var(--slate-700); text-align: center;">
+              <i class="fas fa-clock" style="color: var(--primary-400); font-size: 1.25rem;"></i>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">10-30 min</div>
+              <div style="font-size: 0.6875rem; color: var(--text-muted);">Full Benchmark</div>
+            </div>
+            <div
+              style="background: var(--bg-surface-2); padding: 0.75rem; border-radius: var(--radius); border: 1px solid var(--slate-700); text-align: center;">
+              <i class="fas fa-cloud" style="color: var(--success); font-size: 1.25rem;"></i>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Cloud Ready</div>
+              <div style="font-size: 0.6875rem; color: var(--text-muted);">For Best Results</div>
+            </div>
+          </div>
+
+          <p style="margin-top: 1rem; font-size: 0.8125rem;">
+            <i class="fas fa-lightbulb" style="color: var(--warning);"></i>
+            <strong>Custom Data:</strong> Place your own CSV files in <code>data/synthetic/</code> with columns like
+            <code>heart_rate</code>, <code>blood_pressure_sys</code>, etc. See the script for configuration options.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+      <!-- Scalability Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2 class="chart-title">Scalability Analysis</h2>
+          <div class="chart-controls">
+            <div class="chart-controls">
+              <button class="chart-btn active" data-metric="mean" onclick="updateMetric('mean', this)">Mean</button>
+              <button class="chart-btn" data-metric="encrypt" onclick="updateMetric('encrypt', this)">Encrypt</button>
+            </div>
+            <div class="scale-toggle">
+              <label>Scale:</label>
+              <button class="scale-btn" data-scale="linear" onclick="updateScale('linear', this)">Linear</button>
+              <button class="scale-btn active" data-scale="log" onclick="updateScale('log', this)">Log</button>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="scalabilityChart"></canvas>
+        </div>
+        <div class="chart-insight" id="scaleInsight">
+          <!-- Populated by JS -->
+        </div>
+        <div class="chart-footer">
+          Comparison of execution time vs number of records. Log scale recommended for better visualization.
+        </div>
+      </div>
+
+      <!-- Speedup Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2 class="chart-title">Speedup Factor</h2>
+          <div class="chart-controls">
+            <button class="chart-btn active" data-metric="mean"
+              onclick="updateSpeedupMetric('mean', this)">Mean</button>
+            <button class="chart-btn" data-metric="encrypt"
+              onclick="updateSpeedupMetric('encrypt', this)">Encrypt</button>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="speedupChart"></canvas>
+        </div>
+        <div class="chart-insight" id="speedupInsight">
+          <!-- Populated by JS -->
+        </div>
+        <div class="chart-footer">
+          Factor by which the optimized implementation is faster than baseline.
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Table -->
+    <div class="table-card">
+      <h3><i class="fas fa-table"></i> Detailed Performance Metrics</h3>
+      <div style="overflow-x: auto;">
+        <table class="data-table" id="statsTable">
+          <thead>
+            <tr>
+              <th>Records</th>
+              <th>Operation</th>
+              <th>Baseline (s)</th>
+              <th>Optimized (s)</th>
+              <th>Speedup</th>
+              <th>Improvement</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Chart.js global defaults for dark theme
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.borderColor = '#1e293b';
+
+  let rawData = null;
+  let scalabilityChart = null;
+  let speedupChart = null;
+  let currentMetric = 'mean';
+  let currentScale = 'log';
+  let currentSpeedupMetric = 'mean';
+
+  async function loadData() {
+    const r = await fetch('/ui/benchmarks/data');
+    rawData = await r.json();
+    renderCharts();
+    renderSpeedupChart();
+    renderTable();
+    updateFindings();
+  }
+
+  function getLabels(metric) {
+    return Object.keys(rawData.baseline[metric]).map(Number).sort((a, b) => a - b);
+  }
+
+  function formatTime(seconds) {
+    if (seconds >= 60) return (seconds / 60).toFixed(1) + 'm';
+    if (seconds >= 1) return seconds.toFixed(2) + 's';
+    return (seconds * 1000).toFixed(1) + 'ms';
+  }
+
+  function formatNumber(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(0) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+    return num.toString();
+  }
+
+  function renderCharts() {
+    const labels = getLabels(currentMetric);
+    const bData = labels.map(l => rawData.baseline[currentMetric][l]);
+    const oData = labels.map(l => rawData.optimized[currentMetric][l]);
+
+    const ctx1 = document.getElementById('scalabilityChart').getContext('2d');
+    if (scalabilityChart) scalabilityChart.destroy();
+
+    scalabilityChart = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: labels.map(l => formatNumber(l)),
+        datasets: [
+          {
+            label: 'Baseline CKKS',
+            data: bData,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.15)',
+            tension: 0.3,
+            fill: true,
+            borderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#3b82f6'
+          },
+          {
+            label: 'Optimized Hybrid',
+            data: oData,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            tension: 0.3,
+            fill: true,
+            borderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#10b981'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        scales: {
+          y: {
+            type: currentScale === 'log' ? 'logarithmic' : 'linear',
+            title: {
+              display: true,
+              text: 'Time (Seconds)',
+              font: { size: 12 }
+            },
+            grid: { color: 'rgba(30, 41, 59, 0.5)' },
+            ticks: {
+              callback: function (value) {
+                if (currentScale === 'log') {
+                  // Only show certain tick labels for log scale
+                  if (value === 0.01 || value === 0.1 || value === 1 || value === 10 || value === 100 || value === 1000) {
+                    return formatTime(value);
+                  }
+                  return '';
+                }
+                return formatTime(value);
+              }
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Number of Records',
+              font: { size: 12 }
+            },
+            grid: { display: false }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#e2e8f0',
+              padding: 20,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            titleColor: '#e2e8f0',
+            bodyColor: '#94a3b8',
+            padding: 12,
+            displayColors: true,
+            callbacks: {
+              label: function (context) {
+                return `${context.dataset.label}: ${formatTime(context.raw)}`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Update insight cards
+    updateScaleInsight(labels, bData, oData);
+  }
+
+  function renderSpeedupChart() {
+    const labels = getLabels(currentSpeedupMetric);
+    const bData = labels.map(l => rawData.baseline[currentSpeedupMetric][l]);
+    const oData = labels.map(l => rawData.optimized[currentSpeedupMetric][l]);
+    const speedupData = labels.map((l, i) => bData[i] / oData[i]);
+
+    const ctx2 = document.getElementById('speedupChart').getContext('2d');
+    if (speedupChart) speedupChart.destroy();
+
+    // Dynamic colors based on speedup magnitude
+    const colors = speedupData.map(s => {
+      if (s >= 100) return { bg: 'rgba(16, 185, 129, 0.8)', border: '#10b981' }; // Green for huge speedup
+      if (s >= 10) return { bg: 'rgba(245, 158, 11, 0.8)', border: '#f59e0b' }; // Yellow for good speedup
+      return { bg: 'rgba(59, 130, 246, 0.8)', border: '#3b82f6' }; // Blue for moderate
+    });
+
+    speedupChart = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: labels.map(l => formatNumber(l)),
+        datasets: [{
+          label: 'Speedup Factor',
+          data: speedupData,
+          backgroundColor: colors.map(c => c.bg),
+          borderColor: colors.map(c => c.border),
+          borderWidth: 2,
+          borderRadius: 8,
+          barPercentage: 0.6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            type: 'logarithmic',
+            title: {
+              display: true,
+              text: 'Speedup (x times faster)',
+              font: { size: 12 }
+            },
+            grid: { color: 'rgba(30, 41, 59, 0.5)' },
+            ticks: {
+              callback: function (value) {
+                if (value === 1 || value === 10 || value === 100 || value === 1000) {
+                  return value + 'x';
+                }
+                return '';
+              }
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Number of Records',
+              font: { size: 12 }
+            },
+            grid: { display: false }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            callbacks: {
+              label: function (context) {
+                return `${context.raw.toFixed(1)}x faster`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Update speedup insight
+    updateSpeedupInsight(labels, speedupData);
+  }
+
+  function updateScaleInsight(labels, bData, oData) {
+    const html = labels.map((l, i) => {
+      const speedup = (bData[i] / oData[i]).toFixed(1);
+      return `
+        <div class="insight-item">
+          <div class="insight-value optimized">${formatTime(oData[i])}</div>
+          <div class="insight-label">${formatNumber(l)} Records</div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('scaleInsight').innerHTML = html;
+  }
+
+  function updateSpeedupInsight(labels, speedupData) {
+    const html = labels.map((l, i) => {
+      const color = speedupData[i] >= 100 ? 'optimized' : (speedupData[i] >= 10 ? 'speedup' : 'baseline');
+      return `
+        <div class="insight-item">
+          <div class="insight-value ${color}">${speedupData[i].toFixed(1)}x</div>
+          <div class="insight-label">${formatNumber(l)} Records</div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('speedupInsight').innerHTML = html;
+  }
+
+  function updateFindings() {
+    // Calculate key metrics
+    let allSpeedups = [];
+    let maxSpeedup = 0;
+    let maxSpeedupRecords = 0;
+    let fastestOp = Infinity;
+    let maxRecords = 0;
+
+    ['mean', 'encrypt'].forEach(metric => {
+      const labels = getLabels(metric);
+      labels.forEach(l => {
+        const b = rawData.baseline[metric][l];
+        const o = rawData.optimized[metric][l];
+        const speedup = b / o;
+        allSpeedups.push(speedup);
+
+        if (speedup > maxSpeedup) {
+          maxSpeedup = speedup;
+          maxSpeedupRecords = l;
+        }
+        if (o < fastestOp) fastestOp = o;
+        if (l > maxRecords) maxRecords = l;
+      });
+    });
+
+    const avgSpeedup = allSpeedups.reduce((a, b) => a + b, 0) / allSpeedups.length;
+
+    document.getElementById('avgSpeedup').textContent = avgSpeedup.toFixed(1) + 'x';
+    document.getElementById('maxSpeedup').textContent = maxSpeedup.toFixed(0) + 'x';
+    document.getElementById('fastestOp').textContent = formatTime(fastestOp);
+    document.getElementById('maxRecords').textContent = formatNumber(maxRecords);
+  }
+
+  function renderTable() {
+    const tbody = document.querySelector('#statsTable tbody');
+    let html = '';
+
+    ['mean', 'encrypt'].forEach(metric => {
+      const labels = getLabels(metric);
+      labels.forEach(l => {
+        const b = rawData.baseline[metric][l];
+        const o = rawData.optimized[metric][l];
+        const speedup = b / o;
+        const improvement = ((b - o) / b * 100).toFixed(1);
+
+        let statusClass = 'success';
+        let statusText = 'Excellent';
+        if (speedup < 10) {
+          statusClass = 'warning';
+          statusText = 'Good';
+        }
+        if (speedup < 2) {
+          statusClass = 'primary';
+          statusText = 'Moderate';
+        }
+
+        html += `
+          <tr>
+            <td class="mono">${formatNumber(l)}</td>
+            <td style="text-transform: capitalize;">${metric}</td>
+            <td class="mono baseline-val">${formatTime(b)}</td>
+            <td class="mono optimized-val">${formatTime(o)}</td>
+            <td class="speedup-val">${speedup.toFixed(1)}x</td>
+            <td style="color: var(--success);">${improvement}%</td>
+            <td><span class="badge badge-${statusClass}">${statusText}</span></td>
+          </tr>
+        `;
+      });
+    });
+    tbody.innerHTML = html;
+  }
+
+  // Event handlers
+  window.updateMetric = (metric, btn) => {
+    currentMetric = metric;
+    document.querySelectorAll('.chart-card:first-child .chart-btn[data-metric]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCharts();
+  };
+
+  window.updateScale = (scale, btn) => {
+    currentScale = scale;
+    document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCharts();
+  };
+
+  window.updateSpeedupMetric = (metric, btn) => {
+    currentSpeedupMetric = metric;
+    document.querySelectorAll('.chart-card:last-child .chart-btn[data-metric]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSpeedupChart();
+  };
+
+  window.downloadCSV = () => {
+    let csv = 'Records,Metric,Baseline(s),Optimized(s),Speedup,Improvement(%)\n';
+    ['mean', 'encrypt'].forEach(metric => {
+      const labels = getLabels(metric);
+      labels.forEach(l => {
+        const b = rawData.baseline[metric][l];
+        const o = rawData.optimized[metric][l];
+        const speedup = b / o;
+        const improvement = ((b - o) / b * 100);
+        csv += `${l},${metric},${b},${o},${speedup.toFixed(2)},${improvement.toFixed(2)}\n`;
+      });
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'benchmark_results.csv';
+    a.click();
+  };
+
+  loadData();
+</script>
+{% endblock %}

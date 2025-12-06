@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SecureHealth{% endblock %}
+
+{% block content %}
+<section class="min-h-80vh flex items-center justify-center py-12">
+    <div class="card max-w-md w-full animate-slide-up">
+        <div class="text-center mb-8">
+            <div
+                class="w-16 h-16 bg-primary-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+                <i class="fas fa-shield-halved text-3xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold">Welcome Back</h1>
+            <p class="text-muted">Sign in to access your secure dashboard</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+            <div class="input-group">
+                <label class="label">Username</label>
+                <div class="relative">
+                    <i class="fas fa-user absolute left-3 top-3 text-muted"></i>
+                    <input type="text" name="username" class="input pl-10" placeholder="Enter your username" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="label">Password</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-3 top-3 text-muted"></i>
+                    <input type="password" name="password" class="input pl-10" placeholder="Enter your password"
+                        required>
+                </div>
+            </div>
+
+            <div id="errorMsg" class="hidden text-error text-sm text-center"></div>
+
+            <button type="submit" class="btn btn-primary w-full py-3">
+                Sign In <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-muted">
+            Don't have an account? <a href="/register" class="text-primary hover:underline">Create one</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const err = document.getElementById('errorMsg');
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+        err.classList.add('hidden');
+
+        try {
+            const res = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const json = await res.json();
+
+            if (!res.ok) throw new Error(json.error || 'Login failed');
+
+            // Use Auth Manager
+            auth.login(json.access_token, data.username);
+            window.location.href = '/';
+
+        } catch (e) {
+            err.textContent = e.message;
+            err.classList.remove('hidden');
+            btn.disabled = false;
+            btn.innerHTML = 'Sign In <i class="fas fa-arrow-right ml-2"></i>';
+        }
+    });
+</script>
+{% endblock %}

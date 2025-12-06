@@ -1,0 +1,7 @@
+metric,records,seconds
+encrypt,1000,2.989385
+encrypt,10000,32.110240
+encrypt,100000,285.476763
+mean,1000,0.039683
+mean,10000,0.388853
+mean,100000,639.680463

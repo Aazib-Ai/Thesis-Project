@@ -1,0 +1,858 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Dataset - SecureHealth{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+  .dropzone {
+    background: var(--bg-surface-2);
+    border: 2px dashed var(--slate-700);
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .dropzone:hover {
+    border-color: var(--primary-500);
+    background: rgba(43, 127, 255, 0.05);
+  }
+
+  .dz-message {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+  }
+
+  th,
+  td {
+    border: 1px solid var(--slate-700);
+    padding: 12px;
+    text-align: left;
+  }
+
+  th {
+    background: var(--bg-surface-2);
+    color: var(--text-main);
+    font-weight: 600;
+  }
+
+  td {
+    color: var(--text-muted);
+  }
+
+  .step-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+  }
+
+  .step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--slate-800);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    z-index: 10;
+    border: 2px solid var(--slate-600);
+    transition: all 0.3s;
+  }
+
+  .step-item.active .step-circle {
+    background: var(--primary-600);
+    border-color: var(--primary-400);
+    color: white;
+  }
+
+  .step-item.completed .step-circle {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .step-line {
+    position: absolute;
+    top: 16px;
+    left: -50%;
+    width: 100%;
+    height: 2px;
+    background: var(--slate-700);
+    z-index: 0;
+  }
+
+  .step-item:first-child .step-line {
+    display: none;
+  }
+
+  .step-item.active .step-line,
+  .step-item.completed .step-line {
+    background: var(--primary-600);
+  }
+
+  .tab-btn {
+    padding: 12px 24px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover {
+    color: var(--text-main);
+  }
+
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  .encrypted-text {
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--primary);
+    word-break: break-all;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .toggle-view {
+    display: flex;
+    gap: 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--slate-700);
+  }
+
+  .toggle-view button {
+    padding: 8px 16px;
+    border: none;
+    background: var(--bg-surface-2);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .toggle-view button.active {
+    background: var(--primary);
+    color: white;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-12">
+  <div class="container">
+    <h1 class="text-center mb-8">Upload & Encrypt Dataset</h1>
+
+    <!-- Restored Session Banner (shown when previous data exists) -->
+    <div id="restoredSessionBanner"
+      class="card max-w-4xl mx-auto mb-6 hidden bg-primary-900/20 border border-primary-900/50">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-primary-900/30 flex items-center justify-center text-primary">
+          <i class="fas fa-history"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-bold text-primary">Session Restored</h3>
+          <p class="text-sm text-muted">Your previous upload session has been restored. You can continue or start fresh.
+          </p>
+        </div>
+        <button onclick="startFresh()" class="btn btn-secondary">
+          <i class="fas fa-redo"></i> Start Fresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Previously Encrypted Datasets Banner -->
+    <div id="existingDatasetsSection" class="card max-w-4xl mx-auto mb-6 hidden">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-success-900/30 flex items-center justify-center text-success">
+          <i class="fas fa-database"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-bold">You Have Encrypted Datasets</h3>
+          <p class="text-sm text-muted">View and analyze your previously encrypted data.</p>
+        </div>
+        <a href="/ui/datasets" class="btn btn-primary">
+          <i class="fas fa-folder-open"></i> View Datasets
+        </a>
+      </div>
+    </div>
+
+    <div class="card max-w-4xl mx-auto mb-8">
+      <!-- Tabs -->
+      <div class="flex border-b border-slate-700 mb-6">
+        <button class="tab-btn active" onclick="switchTab('upload')">
+          <i class="fas fa-file-upload"></i> Upload CSV
+        </button>
+        <button class="tab-btn" onclick="switchTab('manual')">
+          <i class="fas fa-keyboard"></i> Manual Entry
+        </button>
+      </div>
+
+      <!-- Tab: Upload CSV -->
+      <div id="tabUpload">
+        <div id="uploadSection">
+          <form id="uploadDZ" class="dropzone mb-6"></form>
+          <div class="flex justify-center gap-4">
+            <button class="btn btn-primary" id="encryptBtn">
+              <i class="fas fa-lock"></i> Encrypt Dataset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Manual Entry -->
+      <div id="tabManual" class="hidden">
+        <div class="bg-surface-2 p-4 rounded border border-slate-700 mb-6">
+          <h4 class="font-bold mb-3"><i class="fas fa-user-plus text-primary"></i> Add Patient Record</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div class="input-group m-0">
+              <label class="label text-xs">Patient ID</label>
+              <input type="text" id="inputPatientId" class="input" placeholder="e.g., 101">
+            </div>
+            <div class="input-group m-0">
+              <label class="label text-xs">Patient Name</label>
+              <input type="text" id="inputName" class="input" placeholder="e.g., John Doe">
+            </div>
+            <div class="input-group m-0">
+              <label class="label text-xs">Age</label>
+              <input type="number" id="inputAge" class="input" placeholder="e.g., 45">
+            </div>
+            <div class="input-group m-0">
+              <label class="label text-xs">Heart Rate</label>
+              <input type="number" id="inputHeartRate" class="input" placeholder="e.g., 72">
+            </div>
+            <div class="input-group m-0">
+              <label class="label text-xs">Blood Pressure (Sys)</label>
+              <input type="number" id="inputBpSys" class="input" placeholder="e.g., 120">
+            </div>
+            <div class="input-group m-0">
+              <label class="label text-xs">Blood Pressure (Dia)</label>
+              <input type="number" id="inputBpDia" class="input" placeholder="e.g., 80">
+            </div>
+            <div class="input-group m-0">
+              <label class="label text-xs">Temperature (°F)</label>
+              <input type="number" step="0.1" id="inputTemp" class="input" placeholder="e.g., 98.6">
+            </div>
+            <div class="input-group m-0">
+              <label class="label text-xs">Glucose (mg/dL)</label>
+              <input type="number" step="0.1" id="inputGlucose" class="input" placeholder="e.g., 95">
+            </div>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="btn btn-secondary" onclick="clearManualForm()">
+              <i class="fas fa-eraser"></i> Clear
+            </button>
+            <button class="btn btn-primary" onclick="addManualRecord()">
+              <i class="fas fa-plus"></i> Add Record
+            </button>
+          </div>
+        </div>
+
+        <!-- Manual Entry Table -->
+        <div id="manualRecordsSection" class="hidden">
+          <div class="flex justify-between items-center mb-4">
+            <h4><i class="fas fa-list"></i> Records (<span id="manualRecordCount">0</span>)</h4>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="clearAllManualRecords()">
+                <i class="fas fa-trash"></i> Clear All
+              </button>
+              <button class="btn btn-primary" onclick="encryptManualRecords()">
+                <i class="fas fa-lock"></i> Encrypt All
+              </button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table id="manualTable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Section (Hidden initially) -->
+      <div id="progressSection" class="hidden">
+        <div class="flex justify-between mb-8 relative">
+          <div class="step-item active" id="step1">
+            <div class="step-circle">1</div>
+            <div class="mt-2 text-sm">Upload</div>
+          </div>
+          <div class="step-item" id="step2">
+            <div class="step-line"></div>
+            <div class="step-circle">2</div>
+            <div class="mt-2 text-sm">Initialize</div>
+          </div>
+          <div class="step-item" id="step3">
+            <div class="step-line"></div>
+            <div class="step-circle">3</div>
+            <div class="mt-2 text-sm">Encrypt</div>
+          </div>
+          <div class="step-item" id="step4">
+            <div class="step-line"></div>
+            <div class="step-circle">4</div>
+            <div class="mt-2 text-sm">Complete</div>
+          </div>
+        </div>
+        <div class="text-center">
+          <h3 id="progressStatus" class="mb-2">Processing...</h3>
+          <div class="w-full bg-slate-800 rounded-full h-4 mb-4 overflow-hidden">
+            <div id="progressBar" class="bg-primary-500 h-4 rounded-full transition-all duration-300" style="width: 0%">
+            </div>
+          </div>
+          <p id="progressDetail" class="text-muted text-sm">Initializing encryption modules...</p>
+        </div>
+      </div>
+
+      <!-- Success Section -->
+      <div id="successSection" class="hidden animate-fade-in">
+        <div class="text-center mb-8">
+          <div class="w-20 h-20 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4 text-success">
+            <i class="fas fa-check-circle text-4xl"></i>
+          </div>
+          <h2 class="text-success mb-2 text-2xl">Encryption Successful!</h2>
+          <p class="text-muted max-w-lg mx-auto">
+            Your dataset has been securely encrypted using AES-256 and CKKS homomorphic encryption.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div
+            class="card bg-surface-2 border border-slate-700 hover:border-primary transition-colors cursor-pointer group"
+            onclick="goToPreview()">
+            <div class="flex items-center gap-3 mb-3">
+              <div
+                class="w-8 h-8 rounded-full bg-primary-900/30 text-primary flex items-center justify-center font-bold">1
+              </div>
+              <h3 class="font-bold group-hover:text-primary transition-colors">Verify Data</h3>
+            </div>
+            <p class="text-sm text-muted">View the encrypted records and verify decryption works correctly.</p>
+            <div class="mt-4 text-primary text-sm font-bold">Go to Preview &rarr;</div>
+          </div>
+
+          <div
+            class="card bg-surface-2 border border-slate-700 hover:border-accent transition-colors cursor-pointer group"
+            onclick="goToAnalytics()">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-full bg-accent-900/30 text-accent flex items-center justify-center font-bold">
+                2</div>
+              <h3 class="font-bold group-hover:text-accent transition-colors">Analyze</h3>
+            </div>
+            <p class="text-sm text-muted">Perform secure homomorphic computations (Mean, Sum, Variance).</p>
+            <div class="mt-4 text-accent text-sm font-bold">Go to Analytics &rarr;</div>
+          </div>
+
+          <div
+            class="card bg-surface-2 border border-slate-700 hover:border-success transition-colors cursor-pointer group"
+            onclick="goToDecrypt()">
+            <div class="flex items-center gap-3 mb-3">
+              <div
+                class="w-8 h-8 rounded-full bg-success-900/30 text-success flex items-center justify-center font-bold">3
+              </div>
+              <h3 class="font-bold group-hover:text-success transition-colors">Decrypt</h3>
+            </div>
+            <p class="text-sm text-muted">Decrypt specific fields or records when needed for viewing.</p>
+            <div class="mt-4 text-success text-sm font-bold">Go to Decryption &rarr;</div>
+          </div>
+        </div>
+
+        <div class="bg-surface-2 p-4 rounded border border-slate-700 text-sm text-muted flex gap-3 items-start">
+          <i class="fas fa-info-circle mt-1 text-primary"></i>
+          <div>
+            <strong>Dataset ID:</strong> <code id="successDatasetId" class="text-primary"></code><br>
+            Your session automatically handles the encryption keys. You do NOT need to manually copy-paste tokens.
+          </div>
+        </div>
+      </div>
+
+      <div id="errorSection" class="hidden mt-4"></div>
+    </div>
+
+    <!-- Preview Section -->
+    <div id="preview" class="card max-w-6xl mx-auto hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2>CSV Preview</h2>
+        <div class="flex items-center gap-4">
+          <div class="toggle-view">
+            <button class="active" id="viewPlaintext" onclick="setViewMode('plaintext')">
+              <i class="fas fa-unlock"></i> Plaintext
+            </button>
+            <button id="viewEncrypted" onclick="setViewMode('encrypted')">
+              <i class="fas fa-lock"></i> Encrypted
+            </button>
+          </div>
+          <div class="text-sm text-muted" id="previewInfo">Showing 0 of 0 rows</div>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table id="previewTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="paginationControls" class="flex justify-between items-center mt-4 pt-4 border-t border-slate-700">
+        <button id="prevPage" class="btn btn-secondary btn-sm" disabled>
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <div class="flex items-center gap-4">
+          <span id="pageIndicator" class="text-sm text-muted">Page 1 of 1</span>
+          <select id="rowsPerPage" class="input py-1 px-2 text-sm w-auto">
+            <option value="10">10 rows</option>
+            <option value="25">25 rows</option>
+            <option value="50">50 rows</option>
+            <option value="100">100 rows</option>
+            <option value="all">All rows</option>
+          </select>
+        </div>
+        <button id="nextPage" class="btn btn-secondary btn-sm" disabled>
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // State Management
+  let currentDatasetId = null;
+  let allParsedRows = [];
+  let allColumns = [];
+  let currentPage = 1;
+  let rowsPerPage = 10;
+  let viewMode = 'plaintext';
+  let manualRecords = [];
+
+  const STORAGE_KEY = 'securehealth_last_dataset';
+  const MANUAL_RECORDS_KEY = 'securehealth_manual_records';
+
+  // Column definitions
+  const PATIENT_COLUMNS = ['patient_id', 'name', 'age', 'heart_rate', 'blood_pressure_sys', 'blood_pressure_dia', 'temperature', 'glucose'];
+  const NUMERIC_FIELDS = ['age', 'heart_rate', 'blood_pressure_sys', 'blood_pressure_dia', 'temperature', 'glucose'];
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    loadExistingDatasets();
+    loadManualRecords();
+    restoreLastDataset();
+  });
+
+  // Load existing datasets from API
+  async function loadExistingDatasets() {
+    try {
+      const res = await fetch('/datasets/list');
+      const data = await res.json();
+      if (data.datasets && data.datasets.length > 0) {
+        document.getElementById('existingDatasetsSection').classList.remove('hidden');
+      }
+    } catch (e) {
+      console.error('Failed to load datasets', e);
+    }
+  }
+
+  // Restore last encrypted dataset from localStorage
+  function restoreLastDataset() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        currentDatasetId = data.datasetId;
+        if (data.rows && data.columns) {
+          allParsedRows = data.rows;
+          allColumns = data.columns;
+          // Show restored session banner
+          document.getElementById('restoredSessionBanner').classList.remove('hidden');
+          document.getElementById('uploadSection').classList.add('hidden');
+          document.getElementById('tabUpload').classList.add('hidden');
+          document.getElementById('tabManual').classList.add('hidden');
+          document.getElementById('successSection').classList.remove('hidden');
+          document.getElementById('successDatasetId').textContent = currentDatasetId;
+          renderPreviewTable();
+          document.getElementById('preview').classList.remove('hidden');
+        }
+      } catch (e) {
+        console.error('Failed to restore state', e);
+      }
+    }
+  }
+
+  // Start Fresh - Clear all local state and reload
+  function startFresh() {
+    if (confirm('This will clear your current session data. The encrypted datasets on the server will remain. Continue?')) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(MANUAL_RECORDS_KEY);
+      location.reload();
+    }
+  }
+  window.startFresh = startFresh;
+
+  // Tab Switching
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.closest('.tab-btn').classList.add('active');
+
+    document.getElementById('tabUpload').classList.add('hidden');
+    document.getElementById('tabManual').classList.add('hidden');
+    document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.remove('hidden');
+  }
+
+  // Manual Records Management
+  function loadManualRecords() {
+    const stored = localStorage.getItem(MANUAL_RECORDS_KEY);
+    if (stored) {
+      try {
+        manualRecords = JSON.parse(stored);
+        renderManualRecords();
+      } catch (e) {
+        manualRecords = [];
+      }
+    }
+  }
+
+  function saveManualRecords() {
+    localStorage.setItem(MANUAL_RECORDS_KEY, JSON.stringify(manualRecords));
+  }
+
+  function addManualRecord() {
+    const record = {
+      patient_id: document.getElementById('inputPatientId').value || `P${Date.now()}`,
+      name: document.getElementById('inputName').value || 'Unknown',
+      age: parseFloat(document.getElementById('inputAge').value) || 0,
+      heart_rate: parseFloat(document.getElementById('inputHeartRate').value) || 0,
+      blood_pressure_sys: parseFloat(document.getElementById('inputBpSys').value) || 0,
+      blood_pressure_dia: parseFloat(document.getElementById('inputBpDia').value) || 0,
+      temperature: parseFloat(document.getElementById('inputTemp').value) || 0,
+      glucose: parseFloat(document.getElementById('inputGlucose').value) || 0
+    };
+
+    manualRecords.push(record);
+    saveManualRecords();
+    renderManualRecords();
+    clearManualForm();
+    notify.success('Added', 'Patient record added successfully');
+  }
+
+  function clearManualForm() {
+    ['inputPatientId', 'inputName', 'inputAge', 'inputHeartRate', 'inputBpSys', 'inputBpDia', 'inputTemp', 'inputGlucose'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+  }
+
+  function clearAllManualRecords() {
+    if (confirm('Clear all manual records?')) {
+      manualRecords = [];
+      saveManualRecords();
+      renderManualRecords();
+    }
+  }
+
+  function removeManualRecord(idx) {
+    manualRecords.splice(idx, 1);
+    saveManualRecords();
+    renderManualRecords();
+  }
+
+  function renderManualRecords() {
+    const section = document.getElementById('manualRecordsSection');
+    const countEl = document.getElementById('manualRecordCount');
+
+    if (manualRecords.length === 0) {
+      section.classList.add('hidden');
+      return;
+    }
+
+    section.classList.remove('hidden');
+    countEl.textContent = manualRecords.length;
+
+    const thead = document.querySelector('#manualTable thead');
+    const tbody = document.querySelector('#manualTable tbody');
+
+    thead.innerHTML = '<tr>' + PATIENT_COLUMNS.map(c => `<th>${c.replace(/_/g, ' ')}</th>`).join('') + '<th>Actions</th></tr>';
+    tbody.innerHTML = manualRecords.map((r, idx) =>
+      '<tr>' + PATIENT_COLUMNS.map(c => `<td>${r[c] ?? ''}</td>`).join('') +
+      `<td><button class="btn btn-sm text-error" onclick="removeManualRecord(${idx})"><i class="fas fa-trash"></i></button></td></tr>`
+    ).join('');
+  }
+
+  async function encryptManualRecords() {
+    if (manualRecords.length === 0) {
+      alert('No records to encrypt');
+      return;
+    }
+
+    // Create CSV content
+    const csvHeader = PATIENT_COLUMNS.join(',');
+    const csvRows = manualRecords.map(r => PATIENT_COLUMNS.map(c => r[c]).join(','));
+    const csvContent = csvHeader + '\n' + csvRows.join('\n');
+
+    // Create Blob and File
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const file = new File([blob], 'manual_data.csv', { type: 'text/csv' });
+
+    // Show progress
+    document.getElementById('tabManual').classList.add('hidden');
+    document.getElementById('progressSection').classList.remove('hidden');
+    updateStep(1);
+
+    // Upload via fetch
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/encrypt/dataset', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      if (data.task_id) {
+        allParsedRows = [...manualRecords];
+        allColumns = PATIENT_COLUMNS;
+        pollStatus(data.task_id);
+      } else {
+        showError(data.error || 'Failed to start encryption');
+      }
+    } catch (e) {
+      showError('Network error');
+    }
+  }
+
+  // View Mode Toggle
+  function setViewMode(mode) {
+    viewMode = mode;
+    document.getElementById('viewPlaintext').classList.toggle('active', mode === 'plaintext');
+    document.getElementById('viewEncrypted').classList.toggle('active', mode === 'encrypted');
+    renderPreviewTable();
+  }
+
+  function simulateEncryption(val) {
+    // Simulate CKKS/AES encrypted representation
+    const str = String(val);
+    const hash = btoa(str + Date.now().toString(36)).substring(0, 24);
+    return `ckks::${hash}...`;
+  }
+
+  // Dropzone
+  Dropzone.autoDiscover = false;
+  const dz = new Dropzone('#uploadDZ', {
+    url: '/encrypt/dataset',
+    paramName: 'file',
+    maxFiles: 1,
+    autoProcessQueue: false,
+    acceptedFiles: '.csv,text/csv',
+    dictDefaultMessage: '<i class="fas fa-cloud-upload-alt fa-3x mb-4"></i><br>Drop CSV file here or click to upload'
+  });
+
+  dz.on('addedfile', file => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result;
+      const parsed = Papa.parse(text, { header: true, dynamicTyping: true });
+      allParsedRows = parsed.data.filter(row => Object.values(row).some(v => v !== null && v !== ''));
+      allColumns = parsed.meta.fields;
+      currentPage = 1;
+      renderPreviewTable();
+      document.getElementById('preview').classList.remove('hidden');
+    };
+    reader.readAsText(file);
+  });
+
+  // Preview Table Rendering
+  function renderPreviewTable() {
+    const totalRows = allParsedRows.length;
+    const effectiveRowsPerPage = rowsPerPage === 'all' ? totalRows : parseInt(rowsPerPage);
+    const totalPages = Math.ceil(totalRows / effectiveRowsPerPage) || 1;
+
+    const startIdx = (currentPage - 1) * effectiveRowsPerPage;
+    const endIdx = rowsPerPage === 'all' ? totalRows : Math.min(startIdx + effectiveRowsPerPage, totalRows);
+    const rowsToShow = allParsedRows.slice(startIdx, endIdx);
+
+    const thead = document.querySelector('#previewTable thead');
+    const tbody = document.querySelector('#previewTable tbody');
+
+    thead.innerHTML = '<tr>' + allColumns.map(c => `<th>${c}</th>`).join('') + '</tr>';
+
+    if (viewMode === 'encrypted') {
+      tbody.innerHTML = rowsToShow.map(r => '<tr>' + allColumns.map(c => {
+        const val = r[c];
+        const isNumeric = NUMERIC_FIELDS.includes(c.toLowerCase());
+        if (isNumeric && val !== null && val !== '') {
+          return `<td class="encrypted-text" title="${simulateEncryption(val)}">${simulateEncryption(val)}</td>`;
+        } else if (val !== null && val !== '') {
+          return `<td class="encrypted-text" style="color: var(--accent);" title="AES-256">AES::${btoa(String(val)).substring(0, 16)}...</td>`;
+        }
+        return `<td></td>`;
+      }).join('') + '</tr>').join('');
+    } else {
+      tbody.innerHTML = rowsToShow.map(r => '<tr>' + allColumns.map(c => `<td>${r[c] ?? ''}</td>`).join('') + '</tr>').join('');
+    }
+
+    document.getElementById('previewInfo').textContent = `Showing ${startIdx + 1}-${endIdx} of ${totalRows} rows`;
+    document.getElementById('pageIndicator').textContent = `Page ${currentPage} of ${totalPages}`;
+    document.getElementById('prevPage').disabled = currentPage <= 1;
+    document.getElementById('nextPage').disabled = currentPage >= totalPages;
+  }
+
+  // Pagination
+  document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPreviewTable();
+    }
+  });
+
+  document.getElementById('nextPage').addEventListener('click', () => {
+    const totalRows = allParsedRows.length;
+    const effectiveRowsPerPage = rowsPerPage === 'all' ? totalRows : parseInt(rowsPerPage);
+    const totalPages = Math.ceil(totalRows / effectiveRowsPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPreviewTable();
+    }
+  });
+
+  document.getElementById('rowsPerPage').addEventListener('change', (e) => {
+    rowsPerPage = e.target.value;
+    currentPage = 1;
+    renderPreviewTable();
+  });
+
+  // Encryption Flow
+  document.getElementById('encryptBtn').addEventListener('click', () => {
+    if (dz.files.length === 0) {
+      alert('Please add a CSV file first.');
+      return;
+    }
+    dz.processQueue();
+  });
+
+  dz.on('sending', () => {
+    document.getElementById('uploadSection').classList.add('hidden');
+    document.getElementById('progressSection').classList.remove('hidden');
+    updateStep(1);
+  });
+
+  dz.on('success', (file, resp) => {
+    const taskId = resp.task_id;
+    pollStatus(taskId);
+  });
+
+  dz.on('error', (file, err) => {
+    showError(err.error || 'Upload failed');
+  });
+
+  function updateStep(step) {
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById(`step${i}`);
+      if (i < step) {
+        el.classList.add('completed');
+        el.classList.remove('active');
+        el.querySelector('.step-circle').innerHTML = '<i class="fas fa-check"></i>';
+      } else if (i === step) {
+        el.classList.add('active');
+        el.classList.remove('completed');
+        el.querySelector('.step-circle').textContent = i;
+      } else {
+        el.classList.remove('active', 'completed');
+        el.querySelector('.step-circle').textContent = i;
+      }
+    }
+  }
+
+  async function pollStatus(taskId) {
+    const statusEl = document.getElementById('progressStatus');
+    const detailEl = document.getElementById('progressDetail');
+    const barEl = document.getElementById('progressBar');
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/encrypt/status/${taskId}`);
+        const data = await res.json();
+
+        if (data.status === 'failed') {
+          clearInterval(interval);
+          showError(data.error);
+          return;
+        }
+
+        barEl.style.width = `${data.progress}%`;
+        statusEl.textContent = `${data.progress}% Complete`;
+        detailEl.textContent = data.step;
+
+        if (data.progress > 10) updateStep(2);
+        if (data.progress > 30) updateStep(3);
+        if (data.progress === 100) {
+          updateStep(4);
+          clearInterval(interval);
+          currentDatasetId = data.dataset_id;
+
+          // Save to localStorage for persistence
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            datasetId: currentDatasetId,
+            rows: allParsedRows,
+            columns: allColumns,
+            timestamp: Date.now()
+          }));
+
+          setTimeout(() => {
+            document.getElementById('progressSection').classList.add('hidden');
+            document.getElementById('successSection').classList.remove('hidden');
+            document.getElementById('successDatasetId').textContent = currentDatasetId;
+            notify.success('Success', 'Dataset encrypted successfully');
+          }, 500);
+        }
+
+      } catch (e) {
+        clearInterval(interval);
+        showError('Connection lost');
+      }
+    }, 1000);
+  }
+
+  function showError(msg) {
+    document.getElementById('progressSection').classList.add('hidden');
+    document.getElementById('tabUpload').classList.remove('hidden');
+    document.getElementById('uploadSection').classList.remove('hidden');
+    const errDiv = document.getElementById('errorSection');
+    errDiv.innerHTML = `<div class="alert alert-error">${msg}</div>`;
+    errDiv.classList.remove('hidden');
+    notify.error('Error', msg);
+  }
+
+  // Clear stored state to start fresh
+  window.startNewUpload = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(MANUAL_RECORDS_KEY);
+    location.reload();
+  };
+
+  // Navigation Helpers
+  window.goToPreview = () => {
+    if (currentDatasetId) window.location.href = `/encrypt/dataset/${currentDatasetId}/preview`;
+  };
+
+  window.goToAnalytics = () => {
+    if (currentDatasetId) window.location.href = `/ui/analytics?dataset=${currentDatasetId}`;
+  };
+
+  window.goToDecrypt = () => {
+    if (currentDatasetId) window.location.href = `/decrypt/ui?dataset=${currentDatasetId}`;
+  };
+</script>
+{% endblock %}

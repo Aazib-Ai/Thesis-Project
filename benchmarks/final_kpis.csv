@@ -1,0 +1,17 @@
+metric,system,records,seconds,throughput_ops_per_sec,expansion_factor
+encrypt_time,AES,1000,0.025264,39581.39,1.98
+throughput,AES,1000,,39581.39,1.98
+encrypt_time,AES,10000,0.276929,36110.35,1.98
+throughput,AES,10000,,36110.35,1.98
+encrypt_time,AES,100000,3.682469,27155.69,1.98
+throughput,AES,100000,,27155.69,1.98
+encrypt_time,CKKS_baseline,1000,3.396852,294.39,83524.25
+encrypt_time,CKKS_baseline,10000,33.804021,295.82,83524.25
+encrypt_time,CKKS_optimized,1000,9.553065,104.68,83524.25
+encrypt_time,CKKS_optimized,10000,97.155712,102.93,83524.25
+mean_time,CKKS_baseline,1000,0.040144,,83524.25
+mean_time,CKKS_baseline,10000,0.412559,,83524.25
+mean_time,CKKS_optimized,1000,0.165399,,83524.25
+mean_time,CKKS_optimized,10000,1.510708,,83524.25
+storage_expansion,AES,0,,,1.98
+storage_expansion,CKKS,0,,,83524.25

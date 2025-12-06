@@ -1,0 +1,1002 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - SecureHealth{% endblock %}
+
+{% block head %}
+<style>
+  /* Analytics Page Specific Styles */
+  .analytics-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .page-title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--primary-400), var(--secondary-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 1024px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Control Panel */
+  .control-panel {
+    position: sticky;
+    top: 100px;
+  }
+
+  .control-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-800);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .control-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .control-card h3 i {
+    color: var(--primary-400);
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .field-btn {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--slate-700);
+    background: var(--bg-surface-2);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
+
+  .field-btn:hover {
+    background: var(--slate-800);
+    border-color: var(--slate-600);
+    color: var(--text-main);
+  }
+
+  .field-btn.selected {
+    border-color: var(--primary);
+    background: rgba(43, 127, 255, 0.15);
+    color: var(--primary-300);
+  }
+
+  .info-box {
+    background: var(--bg-surface-2);
+    border: 1px solid var(--slate-700);
+    border-radius: var(--radius);
+    padding: 1rem;
+  }
+
+  .info-box h4 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-box p {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* Results Panel */
+  .results-panel {
+    min-height: 600px;
+  }
+
+  /* Result Cards Grid */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .results-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Encrypted/Decrypted Result Cards */
+  .result-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    border: 1px solid var(--slate-800);
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+  }
+
+  .result-card.encrypted {
+    border-color: rgba(43, 127, 255, 0.3);
+    background: linear-gradient(145deg, rgba(43, 127, 255, 0.05) 0%, var(--bg-surface) 100%);
+  }
+
+  .result-card.decrypted {
+    border-color: rgba(16, 185, 129, 0.3);
+    background: linear-gradient(145deg, rgba(16, 185, 129, 0.05) 0%, var(--bg-surface) 100%);
+  }
+
+  .result-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .result-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .result-card.encrypted .result-card-title {
+    color: var(--primary-400);
+  }
+
+  .result-card.decrypted .result-card-title {
+    color: var(--success);
+  }
+
+  /* Encrypted result box */
+  .encrypted-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .encrypted-text {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.6875rem;
+    word-break: break-all;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--slate-700);
+    border-radius: var(--radius);
+    padding: 1rem;
+    color: var(--primary-300);
+    max-height: 120px;
+    overflow-y: auto;
+    flex: 1;
+    line-height: 1.5;
+  }
+
+  .result-card-footer {
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* Decrypted value display */
+  .decrypted-value-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .decrypted-value {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--success);
+    font-family: var(--font-display);
+  }
+
+  /* Performance Metrics */
+  .metrics-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-800);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .metrics-card h4 {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .metrics-card h4 i {
+    color: var(--accent);
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .metric-item {
+    padding: 1rem;
+    background: var(--bg-surface-2);
+    border-radius: var(--radius);
+    border: 1px solid var(--slate-700);
+  }
+
+  .metric-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-main);
+    font-family: var(--font-display);
+    margin-bottom: 0.25rem;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Action Cards (Accuracy & Verification) */
+  .action-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-800);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .action-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .action-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .action-card-title i {
+    color: var(--accent);
+  }
+
+  .action-card-description {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+
+  /* Comparison Results */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .comparison-item {
+    background: var(--bg-surface-2);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    text-align: center;
+    border: 1px solid var(--slate-700);
+  }
+
+  .comparison-item.he {
+    border-color: rgba(43, 127, 255, 0.3);
+  }
+
+  .comparison-item.plain {
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .comparison-item.error {
+    border-color: rgba(168, 85, 247, 0.3);
+  }
+
+  .comparison-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .comparison-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+  }
+
+  .comparison-item.he .comparison-value {
+    color: var(--primary-400);
+  }
+
+  .comparison-item.plain .comparison-value {
+    color: var(--success);
+  }
+
+  .comparison-status {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .verdict-box {
+    padding: 1rem;
+    border-radius: var(--radius);
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .verdict-box.success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--success);
+  }
+
+  /* Verification List */
+  .verify-list-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--slate-700);
+    margin-bottom: 0.5rem;
+  }
+
+  .verify-list-item {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--slate-800);
+    font-size: 0.875rem;
+    align-items: center;
+  }
+
+  .verify-list-item:last-child {
+    border-bottom: none;
+  }
+
+  .verify-record {
+    font-family: monospace;
+    color: var(--text-muted);
+  }
+
+  .verify-encrypted {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--primary-300);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .verify-plaintext {
+    font-family: monospace;
+    color: var(--success);
+  }
+
+  .verify-container {
+    background: var(--bg-surface-2);
+    border-radius: var(--radius);
+    padding: 1rem;
+    border: 1px solid var(--slate-700);
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  /* Placeholder State */
+  .placeholder-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+    text-align: center;
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-800);
+    border-radius: var(--radius-xl);
+    padding: 3rem;
+  }
+
+  .placeholder-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--bg-surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .placeholder-icon i {
+    font-size: 2rem;
+    color: var(--text-muted);
+  }
+
+  .placeholder-title {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .placeholder-text {
+    color: var(--text-muted);
+    max-width: 400px;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  /* Loading State */
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    text-align: center;
+  }
+
+  /* Ensure hidden class overrides loading-state display */
+  .loading-state.hidden {
+    display: none !important;
+  }
+
+  .loading-state i {
+    font-size: 3rem;
+    color: var(--primary-400);
+    margin-bottom: 1rem;
+  }
+
+  .loading-state h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .loading-state p {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-8">
+  <div class="analytics-container">
+    <h1 class="page-title">Secure Analytics Dashboard</h1>
+
+    <div class="main-grid">
+      <!-- Left Panel: Controls -->
+      <div class="control-panel">
+        <div class="control-card">
+          <h3><i class="fas fa-cog"></i> Analysis Configuration</h3>
+
+          <!-- Dataset Selection -->
+          <div class="mb-4">
+            <label class="label">Select Dataset</label>
+            <select id="datasetSelect" class="input w-full">
+              <option disabled selected>Loading...</option>
+            </select>
+          </div>
+
+          <!-- Field Selection -->
+          <div class="mb-4">
+            <label class="label">Select Field</label>
+            <div class="field-grid" id="fieldGrid">
+              <div class="col-span-2 p-4 text-center text-muted text-sm border border-slate-700 rounded bg-surface-2"
+                style="grid-column: span 2;">
+                Select a dataset first
+              </div>
+            </div>
+          </div>
+
+          <!-- Operation Selection -->
+          <div class="mb-4">
+            <label class="label">Operation</label>
+            <select id="operationSelect" class="input w-full">
+              <option value="mean">Mean (Average)</option>
+              <option value="sum">Sum (Total)</option>
+              <option value="variance">Variance</option>
+            </select>
+          </div>
+
+          <button id="computeBtn" class="btn btn-primary w-full">
+            <i class="fas fa-calculator"></i> Run Secure Computation
+          </button>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+          <h4>How It Works</h4>
+          <p>
+            Calculations are performed on <strong>encrypted vectors</strong> using CKKS homomorphic encryption.
+            The server computes the result without ever seeing the raw values.
+          </p>
+        </div>
+
+        <!-- Back to Upload -->
+        <div class="mt-4">
+          <a href="/upload" class="btn btn-secondary w-full">
+            <i class="fas fa-arrow-left"></i> Back to Upload
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Panel: Results -->
+      <div class="results-panel">
+        <!-- Loading State -->
+        <div id="statusArea" class="loading-state hidden">
+          <i class="fas fa-cog fa-spin"></i>
+          <h3>Computing Homomorphically...</h3>
+          <p>Performing operations on ciphertext</p>
+        </div>
+
+        <!-- Placeholder State -->
+        <div id="placeholderState" class="placeholder-state">
+          <div class="placeholder-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3 class="placeholder-title">Ready to Analyze</h3>
+          <p class="placeholder-text">
+            Select a dataset and field on the left to perform secure statistical analysis on encrypted data.
+          </p>
+        </div>
+
+        <!-- Results Area -->
+        <div id="resultArea" class="hidden">
+          <!-- Encrypted & Decrypted Results Grid -->
+          <div class="results-grid">
+            <!-- Encrypted Result -->
+            <div class="result-card encrypted">
+              <div class="result-card-header">
+                <div class="result-card-title">
+                  <i class="fas fa-lock"></i> Encrypted Result
+                </div>
+                <span class="badge badge-primary">CKKS</span>
+              </div>
+              <div class="encrypted-content">
+                <div class="encrypted-text" id="encryptedResult">
+                  ...
+                </div>
+              </div>
+              <div class="result-card-footer">
+                Raw ciphertext from server. Meaningless without secret key.
+              </div>
+            </div>
+
+            <!-- Decrypted Result -->
+            <div class="result-card decrypted">
+              <div class="result-card-header">
+                <div class="result-card-title">
+                  <i class="fas fa-lock-open"></i> Decrypted Value
+                </div>
+                <button class="btn btn-sm btn-success" id="decryptBtn">Decrypt</button>
+              </div>
+              <div class="decrypted-value-container">
+                <span class="decrypted-value" id="decryptedValue">---</span>
+              </div>
+              <div class="result-card-footer">
+                Decrypted locally using your session key.
+              </div>
+            </div>
+          </div>
+
+          <!-- Performance Metrics -->
+          <div class="metrics-card">
+            <h4><i class="fas fa-tachometer-alt"></i> Performance Metrics</h4>
+            <div class="metrics-grid">
+              <div class="metric-item">
+                <div class="metric-value" id="metricTime">0.00s</div>
+                <div class="metric-label">Computation Time</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-value" id="metricOps">1</div>
+                <div class="metric-label">Records Processed</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-value">128-bit</div>
+                <div class="metric-label">Security Level</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accuracy Comparison -->
+          <div class="action-card">
+            <div class="action-card-header">
+              <div class="action-card-title">
+                <i class="fas fa-check-double"></i> Accuracy Comparison
+              </div>
+              <button class="btn btn-sm btn-accent" id="compareBtn">
+                <i class="fas fa-balance-scale"></i> Compare Results
+              </button>
+            </div>
+            <p class="action-card-description">
+              Validate homomorphic computation by comparing with plaintext calculation.
+            </p>
+            <div id="compareArea" class="hidden">
+              <div class="comparison-grid">
+                <div class="comparison-item he">
+                  <div class="comparison-label">HE Result</div>
+                  <div class="comparison-value" id="heResultValue">---</div>
+                </div>
+                <div class="comparison-item plain">
+                  <div class="comparison-label">Plaintext</div>
+                  <div class="comparison-value" id="plaintextResultValue">---</div>
+                </div>
+                <div class="comparison-item error">
+                  <div class="comparison-label">Error</div>
+                  <div class="comparison-value" id="errorRateValue">---</div>
+                  <div class="comparison-status" id="errorRateStatus"></div>
+                </div>
+              </div>
+              <div id="accuracyVerdict" class="verdict-box success hidden">
+                <i class="fas fa-shield-alt"></i> VERIFIED: Homomorphic computation matches plaintext.
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Verification -->
+          <div class="action-card">
+            <div class="action-card-header">
+              <div class="action-card-title">
+                <i class="fas fa-search"></i> Data Verification
+              </div>
+              <button class="btn btn-sm btn-secondary" id="verifyBtn">
+                <i class="fas fa-eye"></i> View Input Data
+              </button>
+            </div>
+            <p class="action-card-description">
+              Verify the computation by inspecting and decrypting sample input data.
+            </p>
+            <div id="verifyArea" class="hidden">
+              <div class="verify-container">
+                <div class="verify-list-header">
+                  <span>Record</span>
+                  <span>Encrypted (CKKS)</span>
+                  <span>Plaintext</span>
+                </div>
+                <div id="verifyList"></div>
+              </div>
+              <button class="btn btn-sm btn-accent w-full mt-4" id="decryptSampleBtn">
+                <i class="fas fa-key"></i> Decrypt Sample Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let currentEncryptedResult = null;
+  let currentDatasetId = null;
+  let selectedField = null;
+
+  // Load Datasets
+  async function loadDatasets() {
+    try {
+      const res = await fetch('/datasets/list');
+      const data = await res.json();
+      const sel = document.getElementById('datasetSelect');
+
+      if (data.datasets.length === 0) {
+        sel.innerHTML = '<option disabled>No datasets found - upload one first</option>';
+        return;
+      }
+
+      sel.innerHTML = '<option value="" disabled selected>Select a dataset...</option>' +
+        data.datasets.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+
+      // Check URL param
+      const urlParams = new URLSearchParams(window.location.search);
+      const dsId = urlParams.get('dataset');
+      if (dsId) {
+        sel.value = dsId;
+        loadDatasetFields(dsId);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  document.getElementById('datasetSelect').addEventListener('change', (e) => {
+    loadDatasetFields(e.target.value);
+  });
+
+  async function loadDatasetFields(id) {
+    currentDatasetId = id;
+    selectedField = null;
+
+    // Standard healthcare numeric fields
+    const fields = ['heart_rate', 'blood_pressure_sys', 'blood_pressure_dia', 'temperature', 'glucose', 'age'];
+
+    const grid = document.getElementById('fieldGrid');
+    grid.innerHTML = fields.map(f => `
+      <div class="field-btn" data-field="${f}" onclick="selectField(this, '${f}')">
+        ${f.replace(/_/g, ' ')}
+      </div>
+    `).join('');
+  }
+
+  function selectField(el, field) {
+    // Remove selection from all
+    document.querySelectorAll('.field-btn').forEach(btn => btn.classList.remove('selected'));
+    // Add to clicked
+    el.classList.add('selected');
+    selectedField = field;
+  }
+
+  document.getElementById('computeBtn').addEventListener('click', async () => {
+    const dsId = document.getElementById('datasetSelect').value;
+    const op = document.getElementById('operationSelect').value;
+
+    if (!dsId || !selectedField) {
+      alert('Please select a dataset and a field.');
+      return;
+    }
+
+    // UI State: Loading
+    document.getElementById('placeholderState').classList.add('hidden');
+    document.getElementById('resultArea').classList.add('hidden');
+    document.getElementById('statusArea').classList.remove('hidden');
+
+    try {
+      const res = await fetch(`/analytics/${op}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataset_id: dsId,
+          field_name: selectedField
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      // Store result
+      currentEncryptedResult = data.result;
+
+      // Update UI
+      document.getElementById('statusArea').classList.add('hidden');
+      document.getElementById('resultArea').classList.remove('hidden');
+
+      document.getElementById('encryptedResult').textContent = data.result.ckks.substring(0, 300) + '...';
+      document.getElementById('metricTime').textContent = data.metrics.duration_seconds.toFixed(4) + 's';
+      document.getElementById('metricOps').textContent = data.metrics.record_count || 'N/A';
+      document.getElementById('decryptedValue').textContent = '---';
+
+      // Reset areas
+      document.getElementById('verifyArea').classList.add('hidden');
+      document.getElementById('compareArea').classList.add('hidden');
+
+    } catch (e) {
+      document.getElementById('statusArea').classList.add('hidden');
+      document.getElementById('placeholderState').classList.remove('hidden');
+      alert('Computation failed: ' + e.message);
+    }
+  });
+
+  // Decrypt Result
+  document.getElementById('decryptBtn').addEventListener('click', async () => {
+    if (!currentEncryptedResult || !currentDatasetId) return;
+
+    const btn = document.getElementById('decryptBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    try {
+      const res = await fetch('/analytics/decrypt/result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataset_id: currentDatasetId,
+          result: currentEncryptedResult
+        })
+      });
+
+      const data = await res.json();
+      document.getElementById('decryptedValue').textContent = data.value.toFixed(2);
+
+    } catch (e) {
+      alert('Decryption failed');
+    } finally {
+      btn.innerHTML = 'Decrypt';
+    }
+  });
+
+  // Verification
+  document.getElementById('verifyBtn').addEventListener('click', async () => {
+    if (!currentDatasetId || !selectedField) return;
+
+    const verifyArea = document.getElementById('verifyArea');
+    verifyArea.classList.remove('hidden');
+
+    const list = document.getElementById('verifyList');
+    list.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+
+    // CKKS fields are stored with _enc suffix
+    const encFieldName = selectedField + '_enc';
+
+    try {
+      const res = await fetch(`/decrypt/preview/${currentDatasetId}?limit=5`);
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      list.innerHTML = data.records.map((rec, idx) => {
+        // Look for the encrypted field with _enc suffix
+        const val = rec[encFieldName];
+        let encStr = '<span class="text-muted">Not found</span>';
+
+        if (val && typeof val === 'object' && val.ckks) {
+          encStr = val.ckks.substring(0, 30) + '...';
+        } else if (val) {
+          // May already be a raw value
+          encStr = String(val).substring(0, 30);
+        }
+
+        return `
+          <div class="verify-list-item">
+            <div class="verify-record">#${idx + 1}</div>
+            <div class="verify-encrypted">${encStr}</div>
+            <div class="verify-plaintext" id="verify-plain-${idx}">
+              <span class="text-muted" style="font-style: italic;">Encrypted</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+    } catch (e) {
+      list.innerHTML = '<div class="text-error p-4">Failed to load: ' + e.message + '</div>';
+    }
+  });
+
+  document.getElementById('decryptSampleBtn').addEventListener('click', async () => {
+    if (!selectedField || !currentDatasetId) return;
+
+    const btn = document.getElementById('decryptSampleBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Decrypting...';
+
+    // CKKS fields are stored with _enc suffix
+    const encFieldName = selectedField + '_enc';
+
+    try {
+      const res = await fetch('/decrypt/field', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataset_id: currentDatasetId,
+          field_name: encFieldName,
+          record_indices: [0, 1, 2, 3, 4]
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      Object.entries(data.results).forEach(([idx, val]) => {
+        const el = document.getElementById(`verify-plain-${idx}`);
+        if (el) {
+          const formattedVal = typeof val === 'number' ? val.toFixed(2) : val;
+          el.innerHTML = `<i class="fas fa-check" style="color: var(--success);"></i> ${formattedVal}`;
+        }
+      });
+
+      btn.innerHTML = '<i class="fas fa-lock-open"></i> Decrypted';
+      notify.success('Decrypted', 'Sample data decrypted successfully');
+
+    } catch (e) {
+      notify.error('Error', 'Decryption failed: ' + e.message);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-key"></i> Retry';
+    }
+  });
+
+  // Accuracy Comparison
+  document.getElementById('compareBtn').addEventListener('click', async () => {
+    if (!currentEncryptedResult || !currentDatasetId || !selectedField) {
+      alert('Please run a computation first.');
+      return;
+    }
+
+    const op = document.getElementById('operationSelect').value;
+    const btn = document.getElementById('compareBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    document.getElementById('compareArea').classList.remove('hidden');
+
+    try {
+      // Decrypt HE result
+      const decryptRes = await fetch('/analytics/decrypt/result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataset_id: currentDatasetId, result: currentEncryptedResult })
+      });
+      const heValue = (await decryptRes.json()).value;
+
+      // Get plaintext calculation
+      const plainRes = await fetch('/analytics/plaintext', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataset_id: currentDatasetId, field_name: selectedField, operation: op })
+      });
+      const plaintextValue = (await plainRes.json()).value;
+
+      // Calculate error
+      const relativeError = Math.abs((heValue - plaintextValue) / plaintextValue) * 100;
+
+      document.getElementById('heResultValue').textContent = heValue.toFixed(4);
+      document.getElementById('plaintextResultValue').textContent = plaintextValue.toFixed(4);
+
+      const errorEl = document.getElementById('errorRateValue');
+      const statusEl = document.getElementById('errorRateStatus');
+      const verdictEl = document.getElementById('accuracyVerdict');
+
+      errorEl.textContent = relativeError.toFixed(6) + '%';
+      errorEl.style.color = relativeError < 0.01 ? 'var(--success)' : 'var(--accent)';
+      statusEl.textContent = relativeError < 0.01 ? '✓ Excellent' : '✓ Acceptable';
+
+      verdictEl.classList.remove('hidden');
+
+    } catch (e) {
+      alert('Comparison failed: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-balance-scale"></i> Compare';
+    }
+  });
+
+  loadDatasets();
+</script>
+{% endblock %}

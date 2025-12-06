@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - SecureHealth{% endblock %}
+
+{% block content %}
+<section class="py-12">
+    <div class="container">
+        <h1 class="mb-8">User Profile</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- User Info -->
+            <div class="card h-fit">
+                <div class="text-center mb-6">
+                    <div
+                        class="w-24 h-24 bg-surface-2 rounded-full flex items-center justify-center mx-auto mb-4 text-muted text-4xl">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2 class="text-xl font-bold" id="profileUsername">Loading...</h2>
+                    <p class="text-muted text-sm">Member since 2025</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex justify-between py-2 border-b border-slate-800">
+                        <span class="text-muted">Role</span>
+                        <span>Researcher</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-slate-800">
+                        <span class="text-muted">Status</span>
+                        <span class="text-success"><i class="fas fa-circle text-[8px] mr-1"></i> Active</span>
+                    </div>
+                </div>
+
+                <button onclick="auth.logout()"
+                    class="btn btn-secondary w-full mt-6 text-red-400 hover:text-red-300 hover:border-red-900">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+            </div>
+
+            <!-- Activity & Stats -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="card bg-surface-2 border-none">
+                        <div class="text-3xl font-bold text-primary mb-1" id="datasetCount">0</div>
+                        <div class="text-xs text-muted uppercase tracking-wider">Datasets</div>
+                    </div>
+                    <div class="card bg-surface-2 border-none">
+                        <div class="text-3xl font-bold text-accent mb-1">12</div>
+                        <div class="text-xs text-muted uppercase tracking-wider">Analyses Run</div>
+                    </div>
+                    <div class="card bg-surface-2 border-none">
+                        <div class="text-3xl font-bold text-success mb-1">100%</div>
+                        <div class="text-xs text-muted uppercase tracking-wider">Security Score</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card">
+                    <h3 class="mb-4">Recent Activity</h3>
+                    <div class="space-y-4">
+                        <div class="flex gap-4 items-start">
+                            <div
+                                class="w-8 h-8 rounded bg-primary-900/20 flex items-center justify-center text-primary shrink-0 mt-1">
+                                <i class="fas fa-upload"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm">Uploaded new dataset <strong>heart_study_2025.csv</strong></p>
+                                <span class="text-xs text-muted">2 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-start">
+                            <div
+                                class="w-8 h-8 rounded bg-accent-900/20 flex items-center justify-center text-accent shrink-0 mt-1">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm">Computed <strong>Mean Variance</strong> on <em>Blood Pressure</em>
+                                </p>
+                                <span class="text-xs text-muted">5 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-start">
+                            <div
+                                class="w-8 h-8 rounded bg-success-900/20 flex items-center justify-center text-success shrink-0 mt-1">
+                                <i class="fas fa-lock-open"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm">Decrypted batch results for <strong>diabetes_prediction</strong></p>
+                                <span class="text-xs text-muted">1 day ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Load User Data
+    const username = auth.getUser();
+    if (username) {
+        document.getElementById('profileUsername').textContent = username;
+    } else {
+        window.location.href = '/login';
+    }
+
+    // Load Dataset Count
+    async function loadStats() {
+        try {
+            const res = await fetch('/datasets/list');
+            const data = await res.json();
+            document.getElementById('datasetCount').textContent = data.datasets.length;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    loadStats();
+</script>
+{% endblock %}

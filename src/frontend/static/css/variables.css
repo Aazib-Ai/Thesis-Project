@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Color Palette - Healthcare & Security Focused */
+  /* Primary - Trust & Technology (Blue) */
+  --primary-50: #eef6ff;
+  --primary-100: #d9ebff;
+  --primary-200: #bcdbff;
+  --primary-300: #8ec2ff;
+  --primary-400: #599eff;
+  --primary-500: #2b7fff; /* Main Brand Color */
+  --primary-600: #1a62f5;
+  --primary-700: #0f4cd3;
+  --primary-800: #123ea6;
+  --primary-900: #143682;
+
+  /* Secondary - Healthcare/Healing (Teal/Cyan) */
+  --secondary-50: #effefb;
+  --secondary-100: #cbfef7;
+  --secondary-200: #9afdf0;
+  --secondary-300: #5bf9e8;
+  --secondary-400: #22eadd;
+  --secondary-500: #06ced5;
+  --secondary-600: #00a5b0;
+  --secondary-700: #06848e;
+  --secondary-800: #0e6871;
+  --secondary-900: #11565e;
+
+  /* Neutral / Grays (Slate) */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020617;
+
+  /* Semantic Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+
+  /* Dark Theme Base (Default) */
+  --bg-body: #0b1020; /* Deep Navy */
+  --bg-surface: #162040;
+  --bg-surface-2: #1f2d5a;
+  --bg-glass: rgba(22, 32, 64, 0.7);
+  --bg-glass-border: rgba(255, 255, 255, 0.1);
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-inverse: #0f172a;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+
+  /* Spacing System (4px grid) */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem;  /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem;    /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem;  /* 24px */
+  --space-8: 2rem;    /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem;   /* 48px */
+  --space-16: 4rem;   /* 64px */
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-glow: 0 0 20px rgba(43, 127, 255, 0.3);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Light Theme Override */
+[data-theme="light"] {
+  --bg-body: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-2: #f1f5f9;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --bg-glass-border: rgba(0, 0, 0, 0.05);
+
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-inverse: #f8fafc;
+  
+  --shadow-glow: 0 0 20px rgba(43, 127, 255, 0.15);
+}

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Health Dashboard - SecureHealth{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="py-8">
+    <div class="container">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold">Health Metrics Dashboard</h1>
+                <p class="text-muted text-sm">Real-time analysis of encrypted vital signs</p>
+            </div>
+            <div class="flex gap-2">
+                <select class="input py-1 px-3 text-sm w-40">
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>All Time</option>
+                </select>
+                <button class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+                <button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Export</button>
+            </div>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="card p-4 border-l-4 border-primary">
+                <div class="text-muted text-xs uppercase font-bold mb-1">Avg Heart Rate</div>
+                <div class="text-2xl font-bold text-main">72 <span class="text-xs font-normal text-muted">bpm</span>
+                </div>
+                <div class="text-xs text-success mt-1"><i class="fas fa-arrow-up"></i> 2% vs last week</div>
+            </div>
+            <div class="card p-4 border-l-4 border-accent">
+                <div class="text-muted text-xs uppercase font-bold mb-1">Avg Systolic BP</div>
+                <div class="text-2xl font-bold text-main">120 <span class="text-xs font-normal text-muted">mmHg</span>
+                </div>
+                <div class="text-xs text-muted mt-1">Stable</div>
+            </div>
+            <div class="card p-4 border-l-4 border-success">
+                <div class="text-muted text-xs uppercase font-bold mb-1">Avg Glucose</div>
+                <div class="text-2xl font-bold text-main">95 <span class="text-xs font-normal text-muted">mg/dL</span>
+                </div>
+                <div class="text-xs text-success mt-1"><i class="fas fa-arrow-down"></i> 5% vs last week</div>
+            </div>
+            <div class="card p-4 border-l-4 border-warning">
+                <div class="text-muted text-xs uppercase font-bold mb-1">Risk Score</div>
+                <div class="text-2xl font-bold text-main">Low</div>
+                <div class="text-xs text-muted mt-1">Based on 5 metrics</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div class="card min-h-350">
+                <h3 class="text-lg font-bold mb-4">Heart Rate Trends</h3>
+                <div class="relative h-64 w-full">
+                    <canvas id="hrChart"></canvas>
+                </div>
+            </div>
+            <div class="card min-h-350">
+                <h3 class="text-lg font-bold mb-4">Blood Pressure Distribution</h3>
+                <div class="relative h-64 w-full">
+                    <canvas id="bpChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Outlier Detection -->
+        <div class="card">
+            <h3 class="text-lg font-bold mb-4">Detected Anomalies</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-surface-2 text-xs uppercase text-muted">
+                        <tr>
+                            <th class="p-3">Date</th>
+                            <th class="p-3">Metric</th>
+                            <th class="p-3">Value</th>
+                            <th class="p-3">Deviation</th>
+                            <th class="p-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-slate-800">
+                            <td class="p-3">2025-10-24</td>
+                            <td class="p-3">Heart Rate</td>
+                            <td class="p-3 font-mono text-error">145 bpm</td>
+                            <td class="p-3">+45%</td>
+                            <td class="p-3"><span class="badge badge-error">High</span></td>
+                        </tr>
+                        <tr class="border-b border-slate-800">
+                            <td class="p-3">2025-10-22</td>
+                            <td class="p-3">Glucose</td>
+                            <td class="p-3 font-mono text-warning">180 mg/dL</td>
+                            <td class="p-3">+30%</td>
+                            <td class="p-3"><span class="badge badge-warning">Elevated</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    // Initialize Charts with dummy data
+    // In a real app, this would fetch from an API
+
+    // Heart Rate Line Chart
+    charts.createLineChart(
+        'hrChart',
+        'Heart Rate (bpm)',
+        [68, 72, 75, 71, 69, 74, 72],
+        ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        '#3b82f6'
+    );
+
+    // BP Bar Chart
+    charts.createBarChart(
+        'bpChart',
+        'Systolic BP (mmHg)',
+        [118, 122, 119, 125, 120, 118, 121],
+        ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        '#10b981'
+    );
+</script>
+{% endblock %}

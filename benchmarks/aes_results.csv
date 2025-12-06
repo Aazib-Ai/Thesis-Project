@@ -1,0 +1,4 @@
+records,plaintext_size_bytes,total_seconds,throughput_ops_per_sec
+1000,128,0.025357,39437.31
+10000,128,0.241106,41475.52
+100000,128,2.502593,39958.55
