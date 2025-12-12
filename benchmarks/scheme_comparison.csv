@@ -1,3 +1,0 @@
-scheme,records,mean_time_sec,mean_value,plain_mean,abs_error
-CKKS,10000,1.311472,80.053500,80.053500,0.000000
-BFV,10000,0.669067,80.053500,80.053500,0.000000

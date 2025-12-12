@@ -30,7 +30,7 @@ class CKKSContext:
             poly_modulus_degree=16384,
             coeff_mod_bit_sizes=[60, 40, 40, 40, 40, 60],
         )
-        self.context.global_scale = 2 ** 35
+        self.context.global_scale = 2 ** 40
         self.context.generate_galois_keys()
         self.context.generate_relin_keys()
         return self.context

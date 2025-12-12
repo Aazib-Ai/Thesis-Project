@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .audit-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .audit-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .audit-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2em;
+        }
+        
+        .audit-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-field label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .filter-field input,
+        .filter-field select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        .logs-table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .logs-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+        }
+        
+        .logs-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .logs-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .operation-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            background: #e7f3ff;
+            color: #0066cc;
+            font-family: monospace;
+        }
+        
+        .metadata-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stat-icon {
+            font-size: 2em;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+        
+        .stat-content h3 {
+            margin: 0 0 5px 0;
+            font-size: 2em;
+            color: #333;
+        }
+        
+        .stat-content p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #666;
+        }
+        
+        .no-logs {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .no-logs i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="audit-container">
+        <div class="audit-header">
+            <h1><i class="fas fa-shield-alt"></i> Audit Logs</h1>
+            <p>GDPR Article 30 & HIPAA § 164.312(b) Compliance - Security Event Monitoring</p>
+        </div>
+        
+        <div class="stats-row" id="stats">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e3f2fd; color: #1976d2;">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalLogs">0</h3>
+                    <p>Total Logs</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e8f5e9; color: #388e3c;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="successLogs">0</h3>
+                    <p>Successful Operations</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #ffebee; color: #d32f2f;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="failedLogs">0</h3>
+                    <p>Failed Attempts</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fff3e0; color: #f57c00;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="uniqueUsers">0</h3>
+                    <p>Unique Users</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="filters-section">
+            <h3><i class="fas fa-filter"></i> Filters</h3>
+            <div class="filter-row">
+                <div class="filter-field">
+                    <label>Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="filter-field">
+                    <label>End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="filter-field">
+                    <label>User ID</label>
+                    <input type="text" id="userId" placeholder="Enter username">
+                </div>
+                <div class="filter-field">
+                    <label>Operation</label>
+                    <select id="operation">
+                        <option value="">All Operations</option>
+                        <option value="login">Login</option>
+                        <option value="register">Register</option>
+                        <option value="encrypt">Encrypt</option>
+                        <option value="decrypt">Decrypt</option>
+                        <option value="analytics">Analytics</option>
+                        <option value="delete">Delete</option>
+                        <option value="view_audit_logs">View Audit Logs</option>
+                        <option value="access_denied">Access Denied</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-primary" onclick="loadLogs()">
+                    <i class="fas fa-search"></i> Apply Filters
+                </button>
+                <button class="btn btn-secondary" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+                <button class="btn btn-secondary" onclick="exportLogs()">
+                    <i class="fas fa-download"></i> Export CSV
+                </button>
+            </div>
+        </div>
+        
+        <div class="logs-table-container">
+            <div id="loading" class="loading" style="display:none;">
+                <i class="fas fa-spinner fa-spin"></i> Loading audit logs...
+            </div>
+            <div id="noLogs" class="no-logs" style="display:none;">
+                <i class="fas fa-inbox"></i>
+                <h3>No audit logs found</h3>
+                <p>Try adjusting your filters</p>
+            </div>
+            <table class="logs-table" id="logsTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Operation</th>
+                        <th>IP Address</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="logsBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        const token = localStorage.getItem('access_token');
+        
+        // Set default dates (last 7 days)
+        const today = new Date();
+        const lastWeek = new Date(today);
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        
+        document.getElementById('startDate').valueAsDate = lastWeek;
+        document.getElementById('endDate').valueAsDate = today;
+        
+        async function loadLogs() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const userId = document.getElementById('userId').value;
+            const operation = document.getElementById('operation').value;
+            
+            const params = new URLSearchParams();
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
+            if (userId) params.append('user_id', userId);
+            if (operation) params.append('operation', operation);
+            params.append('limit', '1000');
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('logsTable').style.display = 'none';
+            document.getElementById('noLogs').style.display = 'none';
+            
+            try {
+                const response = await fetch(`/admin/audit-logs?${params}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayLogs(data.logs);
+                } else if (response.status === 403) {
+                    alert('Access denied. Admin role required.');
+                    window.location.href = '/login';
+                } else {
+                    alert('Failed to load audit logs');
+                }
+            } catch (error) {
+                console.error('Error loading logs:', error);
+                alert('Error loading logs: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function displayLogs(logs) {
+            if (!logs || logs.length === 0) {
+                document.getElementById('noLogs').style.display = 'block';
+                return;
+            }
+            
+            // Update stats
+            const successCount = logs.filter(log => log.success).length;
+            const failedCount = logs.length - successCount;
+            const uniqueUsers = new Set(logs.filter(log => log.user_id).map(log => log.user_id)).size;
+            
+            document.getElementById('totalLogs').textContent = logs.length;
+            document.getElementById('successLogs').textContent = successCount;
+            document.getElementById('failedLogs').textContent = failedCount;
+            document.getElementById('uniqueUsers').textContent = uniqueUsers;
+            
+            // Display table
+            const tbody = document.getElementById('logsBody');
+            tbody.innerHTML = '';
+            
+            logs.forEach(log => {
+                const tr = document.createElement('tr');
+                
+                // Format timestamp
+                const timestamp = new Date(log.timestamp).toLocaleString();
+                
+                // Status badge
+                const statusBadge = log.success 
+                    ? '<span class="status-badge status-success">✓ Success</span>'
+                    : '<span class="status-badge status-error">✗ Failed</span>';
+                
+                // Metadata preview
+                const metadataStr = JSON.stringify(log.metadata || {});
+                const metadataPreview = metadataStr.length > 100 
+                    ? metadataStr.substring(0, 100) + '...'
+                    : metadataStr;
+                
+                tr.innerHTML = `
+                    <td>${timestamp}</td>
+                    <td>${log.user_id || '<i>anonymous</i>'}</td>
+                    <td><span class="operation-badge">${log.operation}</span></td>
+                    <td>${log.ip_address}</td>
+                    <td>${statusBadge}</td>
+                    <td class="metadata-preview" title="${metadataStr}">${metadataPreview}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('logsTable').style.display = 'table';
+        }
+        
+        function clearFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('userId').value = '';
+            document.getElementById('operation').value = '';
+            
+            // Reset to default dates
+            const today = new Date();
+            const lastWeek = new Date(today);
+            lastWeek.setDate(lastWeek.getDate() - 7);
+            document.getElementById('startDate').valueAsDate = lastWeek;
+            document.getElementById('endDate').valueAsDate = today;
+            
+            loadLogs();
+        }
+        
+        function exportLogs() {
+            // TODO: Implement CSV export
+            alert('CSV export functionality coming soon');
+        }
+        
+        // Load logs on page load
+        loadLogs();
+    </script>
+</body>
+</html>

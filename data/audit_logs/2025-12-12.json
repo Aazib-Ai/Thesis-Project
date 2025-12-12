@@ -1,0 +1,852 @@
+[
+  {
+    "timestamp": "2025-12-12T13:13:04.593079",
+    "operation": "GET_index",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "index",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/",
+      "status_code": 200,
+      "duration_seconds": 0.007
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:13:04.768935",
+    "operation": "GET_/favicon.ico",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "/favicon.ico",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/favicon.ico",
+      "status_code": 404,
+      "duration_seconds": 0.002
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:13:08.275559",
+    "operation": "GET_results",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "results",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/results",
+      "status_code": 200,
+      "duration_seconds": 0.032
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:13:08.842796",
+    "operation": "GET_ui_benchmarks_data",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "ui_benchmarks_data",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/ui/benchmarks/data",
+      "status_code": 200,
+      "duration_seconds": 0.001
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:13:33.826222",
+    "operation": "GET_comparison",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "comparison",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/comparison",
+      "status_code": 200,
+      "duration_seconds": 0.03
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:13:36.451569",
+    "operation": "GET_results",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "results",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/results",
+      "status_code": 200,
+      "duration_seconds": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:13:36.499915",
+    "operation": "GET_ui_benchmarks_data",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "ui_benchmarks_data",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/ui/benchmarks/data",
+      "status_code": 200,
+      "duration_seconds": 0.001
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:22:00.234436",
+    "operation": "GET_ui_analytics",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "ui_analytics",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/ui/analytics",
+      "status_code": 200,
+      "duration_seconds": 0.039
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:22:00.296063",
+    "operation": "GET_datasets.list_datasets",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "datasets.list_datasets",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/datasets/list",
+      "status_code": 200,
+      "duration_seconds": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:23:01.652250",
+    "operation": "GET_results",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "results",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/results",
+      "status_code": 200,
+      "duration_seconds": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:23:01.718506",
+    "operation": "GET_ui_benchmarks_data",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "ui_benchmarks_data",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/ui/benchmarks/data",
+      "status_code": 200,
+      "duration_seconds": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:22.056217",
+    "operation": "access_denied",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: analyst",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "analyst",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:22.057619",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.002
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:22.077248",
+    "operation": "access_denied",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: viewer",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "viewer",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:22.086627",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.01
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:22.104512",
+    "operation": "GET_admin_audit_logs",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 401,
+      "duration_seconds": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:22.128512",
+    "operation": "GET_admin_audit_logs_ui",
+    "user_id": "admin_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs_ui",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs-ui",
+      "status_code": 200,
+      "duration_seconds": 0.005
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:22.151197",
+    "operation": "access_denied",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: analyst",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "analyst",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:22.162381",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.011
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:44.923232",
+    "operation": "access_denied",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: analyst",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "analyst",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:44.924488",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.001
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:44.943385",
+    "operation": "access_denied",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: viewer",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "viewer",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:44.951974",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.009
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:44.972237",
+    "operation": "GET_admin_audit_logs",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 401,
+      "duration_seconds": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:44.996784",
+    "operation": "GET_admin_audit_logs_ui",
+    "user_id": "admin_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs_ui",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs-ui",
+      "status_code": 200,
+      "duration_seconds": 0.004
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:45.016668",
+    "operation": "access_denied",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: analyst",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "analyst",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:55:45.025895",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.009
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:56:00.796849",
+    "operation": "access_denied",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: analyst",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "analyst",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:56:00.798672",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.002
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:56:00.816605",
+    "operation": "access_denied",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: viewer",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "viewer",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:56:00.824913",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.008
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:56:00.842099",
+    "operation": "GET_admin_audit_logs",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 401,
+      "duration_seconds": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:56:00.862068",
+    "operation": "GET_admin_audit_logs_ui",
+    "user_id": "admin_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs_ui",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs-ui",
+      "status_code": 200,
+      "duration_seconds": 0.003
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:56:00.878748",
+    "operation": "access_denied",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: analyst",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "analyst",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:56:00.885890",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.007
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.831373",
+    "operation": "view_audit_logs",
+    "user_id": "admin_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "filters": {
+        "start_date": null,
+        "end_date": null,
+        "user_id": null,
+        "operation": null
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.832916",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "admin_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 200,
+      "duration_seconds": 0.002
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.854240",
+    "operation": "access_denied",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: analyst",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "analyst",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.864888",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.011
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.887081",
+    "operation": "access_denied",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: viewer",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "viewer",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.896917",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.01
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.917493",
+    "operation": "GET_admin_audit_logs",
+    "user_id": null,
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 401,
+      "duration_seconds": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.941913",
+    "operation": "GET_admin_audit_logs_ui",
+    "user_id": "admin_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs_ui",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs-ui",
+      "status_code": 200,
+      "duration_seconds": 0.004
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.962893",
+    "operation": "access_denied",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: analyst",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "analyst",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:32.974399",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.012
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:33.011888",
+    "operation": "view_audit_logs",
+    "user_id": "admin_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "filters": {
+        "start_date": null,
+        "end_date": null,
+        "user_id": null,
+        "operation": null
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:33.014047",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "admin_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": true,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 200,
+      "duration_seconds": 0.011
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:33.024567",
+    "operation": "access_denied",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: analyst",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "analyst",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:33.033158",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "analyst_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.009
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:33.041451",
+    "operation": "access_denied",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": "Insufficient permissions. Required: ['admin'], User has: viewer",
+    "metadata": {
+      "endpoint": "admin_audit_logs",
+      "user_role": "viewer",
+      "required_roles": [
+        "admin"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-12-12T13:57:33.049568",
+    "operation": "GET_admin_audit_logs",
+    "user_id": "viewer_user",
+    "dataset_id": null,
+    "ip_address": "127.0.0.1",
+    "endpoint": "admin_audit_logs",
+    "method": "GET",
+    "success": false,
+    "error": null,
+    "metadata": {
+      "path": "/admin/audit-logs",
+      "status_code": 403,
+      "duration_seconds": 0.008
+    }
+  }
+]

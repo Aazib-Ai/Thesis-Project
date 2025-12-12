@@ -15,15 +15,33 @@ def ensure_dir(p):
 
 
 def run_ckks_mean(values):
+    """Calculate mean using CKKS with SIMD batching for optimized performance."""
+    SIMD_SLOTS = 8192
+    n = len(values)
+    
     ck = CKKSContext()
     ck.create_optimized_context()
-    encs = [ck.encrypt_vector([float(v)]) for v in values]
+    
+    # Pack values into SIMD slots
+    encrypted_chunks = []
+    for i in range(0, n, SIMD_SLOTS):
+        chunk = [float(v) for v in values[i:i + SIMD_SLOTS]]
+        if len(chunk) < SIMD_SLOTS:
+            chunk = chunk + [0.0] * (SIMD_SLOTS - len(chunk))
+        encrypted_chunks.append(ck.encrypt_vector(chunk))
+    
     start = time.perf_counter()
-    acc = encs[0]
-    for v in encs[1:]:
+    
+    # Sum all encrypted chunks
+    acc = encrypted_chunks[0]
+    for v in encrypted_chunks[1:]:
         acc = acc + v
-    total = ck.decrypt_vector(acc)[0]
-    val = total / len(values)
+    
+    # Decrypt and compute mean
+    dec = ck.decrypt_vector(acc)
+    total = sum(dec[:min(n, SIMD_SLOTS)]) if n <= SIMD_SLOTS else sum(dec[:SIMD_SLOTS])
+    val = total / n
+    
     elapsed = time.perf_counter() - start
     return val, elapsed
 

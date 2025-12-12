@@ -1,0 +1,3 @@
+num_records,aes_encrypt_mb,ckks_baseline_encrypt_mb,ckks_optimized_encrypt_mb,computation_mb,aes_decrypt_mb,ckks_decrypt_mb
+1000,99.2890625,185.734375,616.23046875,618.98046875,619.65234375,619.65625
+5000,615.7421875,617.578125,621.703125,619.125,619.99609375,620.0625

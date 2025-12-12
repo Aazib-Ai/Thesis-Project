@@ -72,9 +72,24 @@ data/keys/
 data/encrypted/
 
 # Task/Planning files (internal use only)
-task.md
-uitask.md
+changes.md
+CHECKLIST.md
 Implementation_plan.md
+Optionc.md
+task.md
+UI_INTEGRATION_GUIDE.md
+uitask.md
+ANALYSIS_SUMMARY.md
+Project_guide.txt
+
+# Debug/Test scripts in root (not part of delivery)
+debug_ckks.py
+test_phase1.py
+test_phase2.py
+
+# Failure/Debug logs
+failure.log
+access_failure.txt
 
 # ===========================
 # OS Generated Files
